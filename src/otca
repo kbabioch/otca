@@ -143,6 +143,13 @@ main()
 
     fi
 
+    # Check for empty servername
+    if [[ -z "$SERVERNAME" ]]; then
+
+        error $EXIT_INVALID_OPTIONS "Servername must not be empty!"
+
+    fi
+
     # Check for empty clientname
     if [[ -z "$1" ]]; then
 
