@@ -1,0 +1,71 @@
+#! /bin/bash
+
+# otca
+#
+# Copyright (c) 2015 Karol Babioch <karol@babioch.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Version string
+VERSION="0.1"
+
+# Various exit codes used throughout the program
+EXIT_OK=0
+EXIT_INVALID_OPTIONS=1
+
+# Name of the server if not set explicitly
+SERVERNAME=$(hostname)
+
+# Name of the client
+CLIENTNAME=""
+
+help()
+{
+
+    cat << EOF
+
+    Usage: $0 [OPTIONS...] CLIENTNAME
+
+    OPTIONS:
+
+      -s, --servername          Set name of the server
+
+      -h, --help                Show this usage help
+          --version             Show version information
+
+    CLIENTNAME: Name of the client that the OTCA should be set up for
+
+EOF
+
+}
+
+version()
+{
+
+    cat << EOF
+
+    Version: $VERSION
+
+    Copyright (c) 2015 Karol Babioch <karol@babioch.de>
+
+    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+    This is free software, and you are welcome to redistribute it
+    under certain conditions; type `show c' for details.
+
+EOF
+
+}
+
+exit $EXIT_OK
+
