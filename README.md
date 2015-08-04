@@ -5,8 +5,7 @@ infrastrcuture][x509] for [OpenVPN][openvpn] installations. Its intended to be
 used in simple point-to-point setups, where you typically only have a single
 server and client. While a static key setup might be easier to configure, a
 certificate based approach provides additional security because of the
-[SSL/TLS handshake][ssl-tls-handshake] involved (ephemeral keys, forward
-secrecy).
+[SSL/TLS handshake][tls] involved (ephemeral keys, forward secrecy).
 
 However generating the appropriate certificates consists of multiple steps and
 quickly becomes inconvinient when done manually. This is where otca comes in
@@ -80,7 +79,7 @@ Bitcoin: `1D15BsSb3CNiH7bFgQtAY6KbBVSGKEs9Wb`
 
 [x509]: https://en.wikipedia.org/wiki/X.509
 [openvpn]: https://openvpn.net/
-[ssl-tls-handshake]: https://en.wikipedia.org/wiki/Transport_Layer_Security
+[tls]: https://en.wikipedia.org/wiki/Transport_Layer_Security
 [broken-revocation]: http://news.netcraft.com/archives/2013/05/13/how-certificate-revocation-doesnt-work-in-practice.html
 [github-repo]: https://github.com/kbabioch/otca
 [issue-tracker]: https://github.com/kbabioch/otca/issues
