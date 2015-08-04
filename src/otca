@@ -21,15 +21,27 @@
 VERSION="0.1"
 
 # Various exit codes used throughout the program
-EXIT_OK=0
 EXIT_INVALID_OPTIONS=1
 
 # Name of the server if not set explicitly
 SERVERNAME=$(hostname)
 
-# Name of the client
+# Name of the client, empty by default
 CLIENTNAME=""
 
+# Output a prefixed error message and exit with given code
+# $1: Exit code
+# $2: Error message
+error()
+{
+
+    echo "ERROR: $2"
+
+    exit $1
+
+}
+
+# Output usage help
 help()
 {
 
@@ -39,7 +51,7 @@ help()
 
     OPTIONS:
 
-      -s, --servername          Set name of the server
+      -s, --servername=         Set name of the server explicetely, rather than using the hostname of the machine
 
       -h, --help                Show this usage help
           --version             Show version information
@@ -50,6 +62,7 @@ EOF
 
 }
 
+# Output version information
 version()
 {
 
@@ -59,13 +72,91 @@ version()
 
     Copyright (c) 2015 Karol Babioch <karol@babioch.de>
 
-    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
-    This is free software, and you are welcome to redistribute it
-    under certain conditions; type `show c' for details.
+    This program comes with ABSOLUTELY NO WARRANTY; This is free software, and
+    you are welcome to redistribute it under certain conditions;
 
 EOF
 
 }
 
-exit $EXIT_OK
+# Output information about OTCA configuration to user
+info()
+{
+
+
+    cat << EOF
+
+    One-Time CA for
+
+        Server:     $SERVERNAME
+        Client:     $CLIENTNAME
+
+EOF
+
+}
+
+# Main entry point
+#
+# This processes the given command line arguments one by one
+#
+# $@: Command line arguments
+main()
+{
+
+    # Parse options provided as command line arguments
+    for i in "$@"
+    do
+
+        case "$i" in
+
+            # Set name of server (short)
+            -s)
+                SERVERNAME="$2"
+                shift 2
+                ;;
+
+            # Set name of server (long)
+            --servername=*)
+                SERVERNAME="${i#*=}"
+                shift
+                ;;
+
+            # Usage help
+            -h|--help)
+                help
+                exit
+                ;;
+
+            # Version information
+            --version)
+                version
+                exit
+
+        esac
+
+    done
+
+    # Check for correct number of arguments
+    if [[ "$#" != 1 ]]; then
+
+        error $EXIT_INVALID_OPTIONS "Wrong number of arguments!"
+
+    fi
+
+    # Check for empty clientname
+    if [[ -z "$1" ]]; then
+
+        error $EXIT_INVALID_OPTIONS "Clientname must not be empty!"
+
+    fi
+
+    # Clientname was provided as command line argument
+    CLIENTNAME="$1"
+
+    info
+
+}
+
+# Invoke main()
+main "$@"
 
