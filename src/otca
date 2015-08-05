@@ -51,7 +51,7 @@ help()
 
     OPTIONS:
 
-      -s, --servername=         Set name of the server explicetely, rather than using the hostname of the machine
+      -s, --servername=         Set name of the server explicitly, rather than using the hostname of the machine
 
       -h, --help                Show this usage help
           --version             Show version information
