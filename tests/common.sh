@@ -20,39 +20,3 @@
 # Path to otca
 OTCA="./../src/otca"
 
-testNoArguments()
-{
-
-    $OTCA > /dev/null
-    assertEquals 1 $?
-
-}
-
-testTooManyArguments()
-{
-
-    $OTCA 1 2 > /dev/null
-    assertEquals 1 $?
-
-}
-
-testEmptyServername()
-{
-
-    $OTCA -s "" client > /dev/null
-    assertEquals 1 $?
-    $OTCA --servername="" client > /dev/null
-    assertEquals 1 $?
-
-}
-
-testEmptyClientname()
-{
-
-    $OTCA "" > /dev/null
-    assertEquals 1 $?
-
-}
-
-. shunit2
-
