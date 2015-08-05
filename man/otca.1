@@ -1,0 +1,72 @@
+.TH OTCA 1
+
+.SH NAME
+otca - sets up a public-key infrastructure built around an One-Time CA
+
+.SH SYNOPSIS
+.B otca
+[
+.I OPTIONS
+]...
+.I CLIENTNAME
+
+.SH DESCRIPTION
+.B otca 
+is a script for setting up a public-key infrastructure (PKI), which is built
+around a certificate authority (CA) that is only used once. After all of the
+certificates have been signed, the CA's private key is permanently removed
+and no other actions can be taken.
+
+This is useful in instances where the scaling benefits of a PKI are actually
+not needed, but using certificates is still desired. One particular use case
+is a point-to-point OpenVPN setup. While OpenVPN supports static keys, using
+certificates provides additional security (ephemeral keys, forward secrecy).
+
+Generating the keys and signing the appropriate certificates quickly becomes a
+tedious task.
+.B otca
+tries to simplify this.
+
+.SH OPTIONS
+
+.SH EXIT STATUS
+
+.SH NOTES
+Since the private key of the CA is removed, no additional certificates can be
+issued and/or revoked. If these aspects of a PKI are really needed,
+.B otca 
+is probably the wrong tool.
+
+.SH EXAMPLE
+
+.SH SEE ALSO
+.BR openssl (1),
+.BR ca (1),
+.BR dhparam (1),
+.BR openvpn (8).
+
+.SH AUTHOR
+.B otca
+was written by
+.MT karol@babioch.de
+Karol Babioch
+.ME .
+For updates and more information, refer to the project page over on
+.UR https://\:www.github.com/kbabioch/otca
+GitHub.com
+.UE .
+
+.SH COPYING
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, write to the Free Software Foundation, Inc., 51 Franklin
+Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
