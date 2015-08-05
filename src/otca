@@ -29,6 +29,9 @@ SERVERNAME=$(hostname)
 # Name of the client, empty by default
 CLIENTNAME=""
 
+# Number of bits of the key(s)
+BITS="2048"
+
 # Output a prefixed error message and exit with given code
 # $1: Exit code
 # $2: Error message
@@ -52,6 +55,8 @@ help()
     OPTIONS:
 
       -s, --servername=         Set name of the server explicitly, rather than using the hostname of the machine
+
+      -b, --bits=               Number of bits of the keys, 2048 by default
 
       -h, --help                Show this usage help
           --version             Show version information
@@ -90,6 +95,7 @@ info()
 
         Server:     $SERVERNAME
         Client:     $CLIENTNAME
+        Bits:       $BITS
 
 EOF
 
@@ -118,6 +124,18 @@ main()
             # Set name of server (long)
             --servername=*)
                 SERVERNAME="${i#*=}"
+                shift
+                ;;
+
+            # Set number of bits (short)
+            -b)
+                BITS="$2"
+                shift 2
+                ;;
+
+            # Set number of bits (long)
+            --bits=*)
+                BITS="${i#*=}"
                 shift
                 ;;
 
@@ -159,6 +177,13 @@ main()
 
     # Clientname was provided as command line argument
     CLIENTNAME="$1"
+
+    # Check for empty bits
+    if [[ -z "$BITS" ]]; then
+
+        error $EXIT_INVALID_OPTIONS "Empty number of bits!"
+
+    fi
 
     # Output information to user
     info

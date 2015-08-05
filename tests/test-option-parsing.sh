@@ -29,25 +29,19 @@ testServernameAutodetect()
 
 }
 
-# Tests if servername can be set with long option
-testSetServernameLongOption()
+# Tests if servername can be set
+testSetServername()
 {
 
     $OTCA --servername=servername clientname | grep -q -E "Server:\s*servername"
     assertEquals 0 $?
-
-}
-
-# Tests if servername can be set with short option
-testSetServernameShortOption()
-{
 
     $OTCA -s servername clientname | grep -q -E "Server:\s*servername"
     assertEquals 0 $?
 
 }
 
-# Tests if clientname can be set
+# Tests if clientname is taken over
 testClientnameIsTakenOver()
 {
 
@@ -56,8 +50,17 @@ testClientnameIsTakenOver()
 
 }
 
+# Tests if bits can be set
+testSetBits()
+{
+
+    $OTCA -b 1024 clientname | grep -q -E "Bits:\s*1024"
+    assertEquals 0 $?
+
+}
+
 # Tests whether version option works
-testVersionOptionLong()
+testVersionOption()
 {
 
     $OTCA --version | grep -q -E "Version: [0-9]+"
@@ -65,18 +68,12 @@ testVersionOptionLong()
 
 }
 
-# Tests whether short usage option works
-testUsageOptionShort()
+# Tests whether usage options are working
+testUsageOption()
 {
 
     $OTCA -h | grep -q "Usage: "
     assertEquals 0 $?
-
-}
-
-# Tests whether long usage option works
-testUsageOptionLong()
-{
 
     $OTCA --help | grep -q "Usage: "
     assertEquals 0 $?

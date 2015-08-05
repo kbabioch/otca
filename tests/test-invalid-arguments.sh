@@ -53,6 +53,21 @@ testExitCodeWithEmptyServername()
 
 }
 
+# Tests exit code when empty bits are set
+testExitCodeWithEmptyBits()
+{
+
+    $OTCA -b "" > /dev/null
+    assertEquals 1 $?
+
+    $OTCA --bits="" > /dev/null
+    assertEquals 1 $?
+
+    $OTCA --bits= > /dev/null
+    assertEquals 1 $?
+
+}
+
 # Tests exit code when empty clientname is set
 testExitCodeWithEmptyClientname()
 {
