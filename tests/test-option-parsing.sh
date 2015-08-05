@@ -56,6 +56,33 @@ testClientnameIsTakenOver()
 
 }
 
+# Tests whether version option works
+testVersionOptionLong()
+{
+
+    $OTCA --version | grep -q -E "Version: [0-9]+"
+    assertEquals 0 $?
+
+}
+
+# Tests whether short usage option works
+testUsageOptionShort()
+{
+
+    $OTCA -h | grep -q "Usage: "
+    assertEquals 0 $?
+
+}
+
+# Tests whether long usage option works
+testUsageOptionLong()
+{
+
+    $OTCA --help | grep -q "Usage: "
+    assertEquals 0 $?
+
+}
+
 # Source (and thereby invoke) shunit2
 . shunit2
 
