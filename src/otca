@@ -160,6 +160,7 @@ main()
     # Clientname was provided as command line argument
     CLIENTNAME="$1"
 
+    # Output information to user
     info
 
 }
