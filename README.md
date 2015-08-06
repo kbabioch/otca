@@ -7,11 +7,14 @@ server and client. While a static key setup might be easier to configure, a
 certificate based approach provides additional security because of the
 [SSL/TLS handshake][tls] involved (ephemeral keys, forward secrecy).
 
-However generating the appropriate certificates consists of multiple steps and
-quickly becomes inconvinient when done manually. This is where otca comes in
-handy.
+However generating the appropriate certificates consists of multiple steps
+and quickly becomes inconvinient when it has to be done manually. OpenVPN is
+usually shipped with a set of scripts called [Easy RSA][easy-rsa]. These
+scripts are powerful enough to deal with many PKI aspects (issuing new
+certificates, revoking certificates, creating CRLs, etc.), but are overkill
+in most setups.
 
-It will:
+This is where otca comes in handy. It will:
 
  - Generate a self-signed CA
 
@@ -19,20 +22,14 @@ It will:
 
  - Remove CAs private key
 
- - Derive a configuration file from a given template for the server and client
-
- - Create a tarball for the server and client for quick deployment
-
 The name otca actually stands for One-Time CA, and is a reference to the way
 the CA is used, i.e. only once. The appropriate key is then permanently removed
 and no further certificates can be issued by this CA. In particular it is also
-not possible to revoke certificates. Since revocation can be considered to be
-broken in practice anyway, this can even be considered an additional benefit as
-it forces you to start from scratch.
+not possible to revoke certificates.
 
-In case of a breach, one simply can generate a new set of certificates and
-replace the old ones. Given that no other parties are involved, nobody should
-notice the difference.
+In case of a breach, or whenever certificates expire, one simply starts from
+scratch and replaces the old certificates. Given that only two entities are
+involved, this is not too much of a hassle.
 
 ## USAGE
 
@@ -80,6 +77,7 @@ Bitcoin: `1D15BsSb3CNiH7bFgQtAY6KbBVSGKEs9Wb`
 [x509]: https://en.wikipedia.org/wiki/X.509
 [openvpn]: https://openvpn.net/
 [tls]: https://en.wikipedia.org/wiki/Transport_Layer_Security
+[easy-rsa]: https://openvpn.net/easyrsa.html
 [broken-revocation]: http://news.netcraft.com/archives/2013/05/13/how-certificate-revocation-doesnt-work-in-practice.html
 [github-repo]: https://github.com/kbabioch/otca
 [issue-tracker]: https://github.com/kbabioch/otca/issues
