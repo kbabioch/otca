@@ -22,6 +22,7 @@ VERSION="1"
 
 # Various exit codes used throughout the program
 EXIT_INVALID_OPTIONS=1
+EXIT_NO_TMPDIR=2
 
 # Name of the server if not set explicitly
 SERVERNAME=$(hostname)
@@ -101,10 +102,26 @@ info()
         Client:     $CLIENTNAME
         Config:     $CONFFILE
         Bits:       $BITS
+        Tempdir:    $TMPDIR
 
 EOF
 
 }
+
+# Various clean up tasks performend whenever the script is exited
+cleanup()
+{
+
+    # Change back to original working directory
+    popd 2> /dev/null
+
+    # Remove temporary scratch space
+    rm -r "$TMPDIR" 2> /dev/null
+
+}
+
+# Execute cleanup function for particular signals
+trap cleanup SIGINT SIGQUIT SIGTERM EXIT
 
 # Parse options provided as command line arguments
 for i in "$@"
@@ -202,6 +219,12 @@ if [[ ! -f "$CONFFILE" ]]; then
 
 fi
 
+# Create temporary scratch space
+TMPDIR=$(mktemp -d) || exit $EXIT_NO_TMPDIR
+
 # Output information to user
 info
+
+# Save current working directory on directory stack and change to TMPDIR
+pushd "$TMPDIR"
 
