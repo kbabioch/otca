@@ -32,6 +32,9 @@ CLIENTNAME=""
 # Number of bits of the key(s)
 BITS="2048"
 
+# Default OpenSSL config file
+CONFFILE="/etc/otca/otca.cnf"
+
 # Output a prefixed error message and exit with given code
 # $1: Exit code
 # $2: Error message
@@ -56,7 +59,9 @@ help()
 
       -s, --servername=         Set name of the server explicitly, rather than using the hostname of the machine
 
-      -b, --bits=               Number of bits of the keys, 2048 by default
+      -c, --config=             Location of OpenSSL configuration file
+
+      -b, --bits=               Number of bits of the RSA keys, 2048 by default
 
       -h, --help                Show this usage help
           --version             Show version information
@@ -88,108 +93,114 @@ EOF
 info()
 {
 
-
     cat << EOF
 
     One-Time CA for
 
         Server:     $SERVERNAME
         Client:     $CLIENTNAME
+        Config:     $CONFFILE
         Bits:       $BITS
 
 EOF
 
 }
 
-# Main entry point
-#
-# This processes the given command line arguments one by one
-#
-# $@: Command line arguments
-main()
-{
+# Parse options provided as command line arguments
+for i in "$@"
+do
 
-    # Parse options provided as command line arguments
-    for i in "$@"
-    do
+    case "$i" in
 
-        case "$i" in
+        # Set name of server (short)
+        -s)
+            SERVERNAME="$2"
+            shift 2
+            ;;
 
-            # Set name of server (short)
-            -s)
-                SERVERNAME="$2"
-                shift 2
-                ;;
+        # Set name of server (long)
+        --servername=*)
+            SERVERNAME="${i#*=}"
+            shift
+            ;;
 
-            # Set name of server (long)
-            --servername=*)
-                SERVERNAME="${i#*=}"
-                shift
-                ;;
+        # OpenSSL configuration file (short)
+        -c)
+            CONFFILE="$2"
+            shift 2
+            ;;
 
-            # Set number of bits (short)
-            -b)
-                BITS="$2"
-                shift 2
-                ;;
+        # OpenSSL configuration file (long)
+        --config=*)
+            CONFFILE="${i#*=}"
+            shift
+            ;;
 
-            # Set number of bits (long)
-            --bits=*)
-                BITS="${i#*=}"
-                shift
-                ;;
+        # Set number of bits (short)
+        -b)
+            BITS="$2"
+            shift 2
+            ;;
 
-            # Usage help
-            -h|--help)
-                help
-                exit
-                ;;
+        # Set number of bits (long)
+        --bits=*)
+            BITS="${i#*=}"
+            shift
+            ;;
 
-            # Version information
-            --version)
-                version
-                exit
+        # Usage help
+        -h|--help)
+            help
+            exit
+            ;;
 
-        esac
+        # Version information
+        --version)
+            version
+            exit
 
-    done
+    esac
 
-    # Check for correct number of arguments
-    if [[ "$#" != 1 ]]; then
+done
 
-        error $EXIT_INVALID_OPTIONS "Wrong number of arguments!"
+# Check for correct number of arguments
+if [[ "$#" != 1 ]]; then
 
-    fi
+    error $EXIT_INVALID_OPTIONS "Wrong number of arguments!"
 
-    # Check for empty servername
-    if [[ -z "$SERVERNAME" ]]; then
+fi
 
-        error $EXIT_INVALID_OPTIONS "Servername must not be empty!"
+# Check for empty servername
+if [[ -z "$SERVERNAME" ]]; then
 
-    fi
+    error $EXIT_INVALID_OPTIONS "Servername must not be empty!"
 
-    # Check for empty clientname
-    if [[ -z "$1" ]]; then
+fi
 
-        error $EXIT_INVALID_OPTIONS "Clientname must not be empty!"
+# Check for empty clientname
+if [[ -z "$1" ]]; then
 
-    fi
+    error $EXIT_INVALID_OPTIONS "Clientname must not be empty!"
 
-    # Clientname was provided as command line argument
-    CLIENTNAME="$1"
+fi
 
-    # Check for empty bits
-    if [[ -z "$BITS" ]]; then
+# Clientname was provided as command line argument
+CLIENTNAME="$1"
 
-        error $EXIT_INVALID_OPTIONS "Empty number of bits!"
+# Check for empty bits
+if [[ -z "$BITS" ]]; then
 
-    fi
+    error $EXIT_INVALID_OPTIONS "Empty number of bits!"
 
-    # Output information to user
-    info
+fi
 
-}
+# Check if OpenSSL configuration file exists
+if [[ ! -f "$CONFFILE" ]]; then
 
-# Invoke main()
-main "$@"
+    error $EXIT_INVALID_OPTIONS "OpenSSL configuration file does not exist!"
+
+fi
+
+# Output information to user
+info
 
