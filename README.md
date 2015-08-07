@@ -1,7 +1,7 @@
 # otca
 
 otca is a script supporting you in quickly setting up a [public-key
-infrastrcuture][x509] for [OpenVPN][openvpn] installations. Its intended to be
+infrastructure][x509] for [OpenVPN][openvpn] installations. Its intended to be
 used in simple point-to-point setups, where you typically only have a single
 server and client. While a static key setup might be easier to configure, a
 certificate based approach provides additional security because of the
