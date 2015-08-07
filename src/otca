@@ -158,6 +158,7 @@ do
         --version)
             version
             exit
+            ;;
 
     esac
 
