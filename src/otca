@@ -38,7 +38,7 @@ BITS="2048"
 error()
 {
 
-    echo "ERROR: $2"
+    echo "ERROR: $2" >&2
 
     exit $1
 
