@@ -1,1 +1,12 @@
 - Register trap for error handling of openssl command block
+
+- Option for output format (PEM vs PKCS12)
+
+- Clean up(s): Functions for tedious tasks
+
+- Option for tarball?
+
+- Option for verbose output
+
+- Copy certificates to working directory
+
