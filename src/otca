@@ -39,6 +39,9 @@ YEARS="5"
 # Default OpenSSL config file
 CONFFILE="/etc/otca/otca.cnf"
 
+# Flag for verbose output
+VERBOSE="NO"
+
 # Output a prefixed error message and exit with given code
 # $1: Exit code
 # $2: Error message
@@ -67,6 +70,8 @@ help()
 
       -b, --bits=               Number of bits of the RSA keys, 2048 by default
       -y, --years=              Number of years certificates should be valid for, 3 by default
+
+      -v, --verbose             Enable verbose output
 
       -h, --help                Show this usage help
           --version             Show version information
@@ -108,6 +113,7 @@ info()
         Config:     $CONFFILE
         Bits:       $BITS
         Years:      $YEARS
+        Verbose:    $VERBOSE
         Tempdir:    $TMPDIR
 
 EOF
@@ -283,6 +289,12 @@ do
         # Set number of years (long)
         --years=*)
             YEARS="${i#*=}"
+            shift
+            ;;
+
+        # Enable verbose mode (short & long)
+        -v|--verbose)
+            VERBOSE="YES"
             shift
             ;;
 
