@@ -33,8 +33,14 @@ CLIENTNAME=""
 # Number of bits of the key(s)
 BITS="2048"
 
+# Number of years certificate should be valid for
+YEARS="5"
+
 # Default OpenSSL config file
 CONFFILE="/etc/otca/otca.cnf"
+
+DBFILE="./database"
+SERIALFILE="./serial"
 
 # Output a prefixed error message and exit with given code
 # $1: Exit code
@@ -63,6 +69,7 @@ help()
       -c, --config=             Location of OpenSSL configuration file
 
       -b, --bits=               Number of bits of the RSA keys, 2048 by default
+      -y, --years=              Number of years certificates should be valid vor, 3 by default
 
       -h, --help                Show this usage help
           --version             Show version information
@@ -100,6 +107,7 @@ info()
 
         Server:     $SERVERNAME
         Client:     $CLIENTNAME
+
         Config:     $CONFFILE
         Bits:       $BITS
         Tempdir:    $TMPDIR
@@ -108,12 +116,33 @@ EOF
 
 }
 
+# Returns hex string with given length
+# $1: Requested string length
+random_hex()
+{
+
+    # 2 hex bytes needed for representation of a single byte -> /2
+    openssl rand -hex $(($1/2))
+
+}
+
+# Writes random serial to given file
+#
+# According to RFC5280 serial might be up to 20 octets long, so this is what
+# we use here.
+randomize_serial()
+{
+
+    random_hex 20 > "$SERIALFILE"
+
+}
+
 # Various clean up tasks performend whenever the script is exited
 cleanup()
 {
 
     # Change back to original working directory
-    popd 2> /dev/null
+    popd > /dev/null 2>&1
 
     # Remove temporary scratch space
     rm -r "$TMPDIR" 2> /dev/null
@@ -165,6 +194,18 @@ do
             shift
             ;;
 
+        # Set number of years (short)
+        -y)
+            YEARS="$2"
+            shift 2
+            ;;
+
+        # Set number of years (long)
+        --years=*)
+            YEARS="${i#*=}"
+            shift
+            ;;
+
         # Usage help
         -h|--help)
             help
@@ -212,6 +253,13 @@ if [[ -z "$BITS" ]]; then
 
 fi
 
+# Check for empty years
+if [[ -z "$YEARS" ]]; then
+
+    error $EXIT_INVALID_OPTIONS "Empty number of years!"
+
+fi
+
 # Check if OpenSSL configuration file exists
 if [[ ! -f "$CONFFILE" ]]; then
 
@@ -226,5 +274,37 @@ TMPDIR=$(mktemp -d) || exit $EXIT_NO_TMPDIR
 info
 
 # Save current working directory on directory stack and change to TMPDIR
-pushd "$TMPDIR"
+pushd "$TMPDIR" > /dev/null 2>&1
+
+# Create files that are expected to be in place by OpenSSL's ca(1) application
+touch $DBFILE
+touch $SERIALFILE
+
+# Create CSR for CA
+openssl req \
+    -newkey rsa:"$BITS" \
+    -keyout ca.key \
+    -nodes \
+    -config "$CONFFILE" \
+    -subj "/CN=OTCA $SERVERNAME+$CLIENTNAME" \
+    -out ca.csr \
+    -batch \
+    > /dev/null 2>&1
+
+# Write random serial to serial file
+randomize_serial
+
+# Sign CA CSR with CA private key (i.e. generate CA certificate)
+openssl ca \
+    -config "$CONFFILE" \
+    -selfsign \
+    -keyfile ca.key \
+    -name otca_ca \
+    -extensions otca_ca_ext \
+    -in ca.csr
+    -startdate $(date "+%y%m%d000000Z") \
+    -enddate $(date "+%y%m%d235959Z" -d "+ $YEARS years") \
+    -out ca.pem \
+    -batch \
+    > /dev/null 2>&1
 
