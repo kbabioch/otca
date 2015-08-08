@@ -72,7 +72,7 @@ help()
       -c, --config=             Location of OpenSSL configuration file
 
       -b, --bits=               Number of bits of the RSA keys, 2048 by default
-      -y, --years=              Number of years certificates should be valid vor, 3 by default
+      -y, --years=              Number of years certificates should be valid for, 3 by default
 
       -h, --help                Show this usage help
           --version             Show version information
