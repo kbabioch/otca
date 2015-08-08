@@ -149,7 +149,7 @@ cleanup()
     popd > /dev/null 2>&1
 
     # Remove temporary scratch space
-    #rm -r "$TMPDIR" 2> /dev/null
+    rm -r "$TMPDIR" 2> /dev/null
 
 }
 
