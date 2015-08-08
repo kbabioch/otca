@@ -141,7 +141,11 @@ randomize_serial()
 
 }
 
-init_ca()
+# Sets up the OTCA
+#
+# This initializes the OTCA. It creates a CSR, self-signs it and creates the
+# environment that is needed by OpenSSL's ca(1) utility.
+init_otca()
 {
 
     # Create necessary files and directories (required by OpenSSL's ca(1))
@@ -338,6 +342,13 @@ fi
 # Clientname was provided as command line argument
 CLIENTNAME="$1"
 
+# Check if servername is different from clientname
+if [[ "$SERVERNAME" == "$CLIENTNAME" ]]; then
+
+    error $EXIT_INVALID_OPTIONS "Servername and clientname must be different!"
+
+fi
+
 # Check for empty bits
 if [[ -z "$BITS" ]]; then
 
@@ -369,7 +380,7 @@ info
 pushd "$TMPDIR" > /dev/null 2>&1
 
 # Initialize CA
-init_ca
+init_otca
 
 # Create CSR for server and client
 create_csr "$SERVERNAME"
