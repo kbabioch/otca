@@ -141,6 +141,88 @@ randomize_serial()
 
 }
 
+init_ca()
+{
+
+    # Create necessary files and directories (required by OpenSSL's ca(1))
+    touch $TOUCHFILES
+    mkdir $CREATEDIRS
+
+    # Create CSR for OTCA itself
+    openssl req \
+        -newkey rsa:"$BITS" \
+        -keyout "keys/otca.key" \
+        -nodes \
+        -config "$CONFFILE" \
+        -subj "/CN=OTCA $SERVERNAME+$CLIENTNAME" \
+        -out "csr/otca.csr" \
+        -batch \
+        > /dev/null 2>&1
+
+    # Randomize serial
+    randomize_serial
+
+    # Self-sign OTCA
+    openssl ca \
+        -config "$CONFFILE" \
+        -selfsign \
+        -keyfile keys/otca.key \
+        -name otca_ca \
+        -extensions otca_ext_ca \
+        -in csr/otca.csr \
+        -startdate $(date "+%y%m%d000000Z") \
+        -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
+        -out certs/otca.pem \
+        -batch \
+        > /dev/null 2>&1
+
+}
+
+# Create a CSR for entity with given common name
+#
+#$1: commonName (CN)
+create_csr()
+{
+
+    # Create CSR
+    openssl req \
+        -newkey rsa:"$BITS" \
+        -keyout "keys/$1.key" \
+        -nodes \
+        -config "$CONFFILE" \
+        -subj "/CN=$1" \
+        -out "csr/$1.csr" \
+        -batch \
+        > /dev/null 2>&1
+
+}
+
+# Sign a CSR with CAs private key
+#
+#$1: name
+#$2: extensions
+sign_csr()
+{
+
+    # Randomize serial
+    randomize_serial
+
+    # Sign CSR
+    openssl ca \
+        -config "$CONFFILE" \
+        -keyfile keys/otca.key \
+        -cert certs/otca.pem \
+        -name otca_ca \
+        -extensions "$2" \
+        -in "csr/$1.csr" \
+        -startdate $(date "+%y%m%d000000Z") \
+        -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
+        -out "certs/$1.pem" \
+        -batch \
+        > /dev/null 2>&1
+
+}
+
 # Various clean up tasks performend whenever the script is exited
 cleanup()
 {
@@ -274,90 +356,20 @@ fi
 # Create temporary scratch space
 TMPDIR=$(mktemp -d) || exit $EXIT_NO_TMPDIR
 
-# Output information to user
+# Output information about configuration
 info
 
 # Save current working directory on directory stack and change to TMPDIR
 pushd "$TMPDIR" > /dev/null 2>&1
 
-# Create necessary files and directories
-touch $TOUCHFILES
-mkdir $CREATEDIRS
-
-#$1: name
-#$2: extensions
-sign_csr()
-{
-
-    # Randomize serial
-    randomize_serial
-
-    # Sign CSR
-    openssl ca \
-        -config "$CONFFILE" \
-        -keyfile keys/otca.key \
-        -cert certs/otca.pem \
-        -name otca_ca \
-        -extensions "$2" \
-        -in "csr/$1.csr" \
-        -startdate $(date "+%y%m%d000000Z") \
-        -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
-        -out "certs/$1.pem" \
-        -batch \
-        > /dev/null 2>&1
-
-}
-
-#$1: CN
-create_csr()
-{
-
-    # Create CSR
-    openssl req \
-        -newkey rsa:"$BITS" \
-        -keyout "keys/$1.key" \
-        -nodes \
-        -config "$CONFFILE" \
-        -subj "/CN=$1" \
-        -out "csr/$1.csr" \
-        -batch \
-        > /dev/null 2>&1
-
-}
-
-# Create CSR
-openssl req \
-    -newkey rsa:"$BITS" \
-    -keyout "keys/otca.key" \
-    -nodes \
-    -config "$CONFFILE" \
-    -subj "/CN=OTCA $SERVERNAME+$CLIENTNAME" \
-    -out "csr/otca.csr" \
-    -batch \
-    > /dev/null 2>&1
-
-# Randomize serial
-randomize_serial
-
-# Self-sign OTCA
-openssl ca \
-    -config "$CONFFILE" \
-    -selfsign \
-    -keyfile keys/otca.key \
-    -name otca_ca \
-    -extensions otca_ext_ca \
-    -in csr/otca.csr \
-    -startdate $(date "+%y%m%d000000Z") \
-    -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
-    -out certs/otca.pem \
-    -batch \
-    > /dev/null 2>&1
+# Initialize CA
+init_ca
 
 # Create CSR for server and client
 create_csr "$SERVERNAME"
 create_csr "$CLIENTNAME"
 
-# Sign CSRs
+# Sign CSRs with appropriate extensions
 sign_csr "$SERVERNAME" otca_ext_server
 sign_csr "$CLIENTNAME" otca_ext_client
 
