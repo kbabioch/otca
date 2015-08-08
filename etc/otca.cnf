@@ -1,30 +1,35 @@
-# Global
 default_md              = sha256
 distinguished_name      = otca_dn
-dir                     = .
-
-[ req ]
-
-[ ca ]
+wd                      = .
 
 [ otca_dn ]
 
 [ otca_ca ]
-new_certs_dir           = $dir
-database                = $dir/database
-serial                  = $dir/serial
-policy                  = otca_ca_policy
+new_certs_dir           = $wd/certs
+database                = $wd/database
+serial                  = $wd/serial
+policy                  = otca_policy
 
-[ otca_ca_ext ]
+[ otca_policy ]
+CN = supplied
+
+[ otca_ext_ca ]
 basicConstraints        = critical, CA:TRUE, pathlen:0
 keyUsage                = keyCertSign
 subjectKeyIdentifier    = hash
 authorityKeyIdentifier  = keyid:always,issuer
 
-[ otca_ca_policy ]
-CN = supplied
+[ otca_ext_server ]
+basicConstraints        = critical, CA:FALSE
+keyUsage                = digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer
 
-[ otca_server ]
-
-[ otca_client ]
+[ otca_ext_client ]
+basicConstraints        = critical, CA:FALSE
+keyUsage                = digitalSignature, keyAgreement
+extendedKeyUsage        = clientAuth
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer
 

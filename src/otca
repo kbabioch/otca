@@ -110,6 +110,7 @@ info()
 
         Config:     $CONFFILE
         Bits:       $BITS
+        Years:      $YEARS
         Tempdir:    $TMPDIR
 
 EOF
@@ -145,7 +146,7 @@ cleanup()
     popd > /dev/null 2>&1
 
     # Remove temporary scratch space
-    rm -r "$TMPDIR" 2> /dev/null
+    #rm -r "$TMPDIR" 2> /dev/null
 
 }
 
@@ -276,35 +277,85 @@ info
 # Save current working directory on directory stack and change to TMPDIR
 pushd "$TMPDIR" > /dev/null 2>&1
 
-# Create files that are expected to be in place by OpenSSL's ca(1) application
+# Create files and directories that are required by OpenSSL's ca(1) application
 touch $DBFILE
 touch $SERIALFILE
+mkdir certs keys csr
 
-# Create CSR for CA
+#$1: name
+#$2: extensions
+sign_csr()
+{
+
+    # Randomize serial
+    randomize_serial
+
+    # Sign CSR
+    openssl ca \
+        -config "$CONFFILE" \
+        -keyfile keys/otca.key \
+        -cert certs/otca.pem \
+        -name otca_ca \
+        -extensions "$2" \
+        -in "csr/$1.csr" \
+        -startdate $(date "+%y%m%d000000Z") \
+        -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
+        -out "certs/$1.pem" \
+        -batch \
+        > /dev/null 2>&1
+
+}
+
+#$1: CN
+create_csr()
+{
+
+    # Create CSR
+    openssl req \
+        -newkey rsa:"$BITS" \
+        -keyout "keys/$1.key" \
+        -nodes \
+        -config "$CONFFILE" \
+        -subj "/CN=$1" \
+        -out "csr/$1.csr" \
+        -batch \
+        > /dev/null 2>&1
+
+}
+
+# Create CSR
 openssl req \
     -newkey rsa:"$BITS" \
-    -keyout ca.key \
+    -keyout "keys/otca.key" \
     -nodes \
     -config "$CONFFILE" \
     -subj "/CN=OTCA $SERVERNAME+$CLIENTNAME" \
-    -out ca.csr \
+    -out "csr/otca.csr" \
     -batch \
     > /dev/null 2>&1
 
-# Write random serial to serial file
+# Randomize serial
 randomize_serial
 
-# Sign CA CSR with CA private key (i.e. generate CA certificate)
+# Self-sign OTCA
 openssl ca \
     -config "$CONFFILE" \
     -selfsign \
-    -keyfile ca.key \
+    -keyfile keys/otca.key \
     -name otca_ca \
-    -extensions otca_ca_ext \
-    -in ca.csr
+    -extensions otca_ext_ca \
+    -in csr/otca.csr \
     -startdate $(date "+%y%m%d000000Z") \
-    -enddate $(date "+%y%m%d235959Z" -d "+ $YEARS years") \
-    -out ca.pem \
+    -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
+    -out certs/otca.pem \
     -batch \
     > /dev/null 2>&1
+
+# Create CSR for server and client
+create_csr "$SERVERNAME"
+create_csr "$CLIENTNAME"
+
+# Sign CSRs
+sign_csr "$SERVERNAME" otca_ext_server
+sign_csr "$CLIENTNAME" otca_ext_client
 
