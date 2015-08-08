@@ -39,8 +39,11 @@ YEARS="5"
 # Default OpenSSL config file
 CONFFILE="/etc/otca/otca.cnf"
 
-DBFILE="./database"
-SERIALFILE="./serial"
+# Files to be created for OpenSSL ca(1) application
+TOUCHFILES="database serial"
+
+# Directory structure to be created within temporary scratch space
+CREATEDIRS="certs csr keys"
 
 # Output a prefixed error message and exit with given code
 # $1: Exit code
@@ -134,7 +137,7 @@ random_hex()
 randomize_serial()
 {
 
-    random_hex 20 > "$SERIALFILE"
+    random_hex 20 > serial
 
 }
 
@@ -277,10 +280,9 @@ info
 # Save current working directory on directory stack and change to TMPDIR
 pushd "$TMPDIR" > /dev/null 2>&1
 
-# Create files and directories that are required by OpenSSL's ca(1) application
-touch $DBFILE
-touch $SERIALFILE
-mkdir certs keys csr
+# Create necessary files and directories
+touch $TOUCHFILES
+mkdir $CREATEDIRS
 
 #$1: name
 #$2: extensions
