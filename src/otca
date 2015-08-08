@@ -390,3 +390,15 @@ create_csr "$CLIENTNAME"
 sign_csr "$SERVERNAME" otca_ext_server
 sign_csr "$CLIENTNAME" otca_ext_client
 
+# Get back to old working directory
+popd > /dev/null 2>&1
+
+# Move relevant files
+mv "$TMPDIR/certs/$SERVERNAME.pem" .
+mv "$TMPDIR/keys/$SERVERNAME.key" .
+
+mv "$TMPDIR/certs/$CLIENTNAME.pem" .
+mv "$TMPDIR/keys/$CLIENTNAME.key" .
+
+mv "$TMPDIR/certs/otca.pem" .
+
