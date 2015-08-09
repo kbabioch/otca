@@ -39,6 +39,12 @@ YEARS="5"
 # Default OpenSSL config file
 CONFFILE="/etc/otca/otca.cnf"
 
+# Name of output directory
+OUTDIR=""
+
+# Flag for PKCS12 mode
+PKCS12="NO"
+
 # Flag for verbose output
 VERBOSE="NO"
 
@@ -70,6 +76,9 @@ help()
 
       -b, --bits=               Number of bits of the RSA keys, 2048 by default
       -y, --years=              Number of years certificates should be valid for, 3 by default
+
+      -p, --pkcs12              Create PKCS12 files instead of PEM keys and certificates
+      -d, --dir=                Name of output directory, "$SERVERNAME+$CLIENTNAME" by default
 
       -v, --verbose             Enable verbose output
 
@@ -111,8 +120,13 @@ info()
         Client:     $CLIENTNAME
 
         Config:     $CONFFILE
+
         Bits:       $BITS
         Years:      $YEARS
+
+        PKCS12:     $PKCS12
+        Output dir: $OUTDIR
+
         Verbose:    $VERBOSE
         Tempdir:    $TMPDIR
 
@@ -150,7 +164,7 @@ init_otca()
 
     # Create necessary files and directories (required by OpenSSL's ca(1))
     touch database serial
-    mkdir -p certs csr keys
+    mkdir -p certs csr keys pkcs12
 
     # Create CSR for OTCA itself
     openssl req \
@@ -227,6 +241,24 @@ sign_csr()
 
 }
 
+# Create PKCS12 from private key and certificate
+#
+#$1: name
+create_pkcs12()
+{
+
+    # Create PKCS12 file
+    openssl pkcs12 \
+        -export \
+        -out "pkcs12/$1.p12" \
+        -passout pass: \
+        -inkey "keys/$1.key" \
+        -in "certs/$1.pem" \
+        -certfile certs/otca.pem \
+        > /dev/null 2>&1
+
+}
+
 # Various clean up tasks performend whenever the script is exited
 cleanup()
 {
@@ -293,6 +325,24 @@ do
         # Set number of years (long)
         --years=*)
             YEARS="${i#*=}"
+            shift
+            ;;
+
+        # Enable PKCS12 mode (short & long)
+        -p|--pkcs12)
+            PKCS12="YES"
+            shift
+            ;;
+
+        # Set output directory (short)
+        -d)
+            OUTDIR="$2"
+            shift 2
+            ;;
+
+        # Set output directory (long)
+        --dir=*)
+            OUTDIR="${i#*=}"
             shift
             ;;
 
@@ -370,6 +420,21 @@ if [[ ! -f "$CONFFILE" ]]; then
 
 fi
 
+# Check if output directory was set
+if [[ -z "$OUTDIR" ]]; then
+
+    # Set default value if it was not set explicetely (or is empty)
+    OUTDIR="$SERVERNAME+$CLIENTNAME"
+
+fi
+
+# Check if output directory already exists
+if [[ -d "$OUTDIR" ]]; then
+
+    error $EXIT_INVALID_OPTIONS "Output directory already exists!"
+
+fi
+
 # Create temporary scratch space
 TMPDIR=$(mktemp -d) || exit $EXIT_NO_TMPDIR
 
@@ -390,15 +455,28 @@ create_csr "$CLIENTNAME"
 sign_csr "$SERVERNAME" otca_ext_server
 sign_csr "$CLIENTNAME" otca_ext_client
 
+# Create PKCS12
+if [[ $PKCS12 == "YES" ]]; then
+
+    create_pkcs12 "$SERVERNAME"
+    create_pkcs12 "$CLIENTNAME"
+
+fi
+
 # Get back to old working directory
 popd > /dev/null 2>&1
 
+# Create output directory
+mkdir "$OUTDIR"
+
 # Move relevant files
-mv "$TMPDIR/certs/$SERVERNAME.pem" .
-mv "$TMPDIR/keys/$SERVERNAME.key" .
+mv "$TMPDIR/certs/$SERVERNAME.pem" "$OUTDIR/"
+mv "$TMPDIR/keys/$SERVERNAME.key" "$OUTDIR/"
+mv "$TMPDIR/pkcs12/$SERVERNAME.p12" "$OUTDIR/"
 
-mv "$TMPDIR/certs/$CLIENTNAME.pem" .
-mv "$TMPDIR/keys/$CLIENTNAME.key" .
+mv "$TMPDIR/certs/$CLIENTNAME.pem" "$OUTDIR/"
+mv "$TMPDIR/keys/$CLIENTNAME.key" "$OUTDIR/"
+mv "$TMPDIR/pkcs12/$CLIENTNAME.p12" "$OUTDIR/"
 
-mv "$TMPDIR/certs/otca.pem" .
+mv "$TMPDIR/certs/otca.pem" "$OUTDIR/"
 
