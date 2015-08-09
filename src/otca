@@ -470,13 +470,20 @@ popd > /dev/null 2>&1
 mkdir "$OUTDIR"
 
 # Move relevant files
-mv "$TMPDIR/certs/$SERVERNAME.pem" "$OUTDIR/"
-mv "$TMPDIR/keys/$SERVERNAME.key" "$OUTDIR/"
-mv "$TMPDIR/pkcs12/$SERVERNAME.p12" "$OUTDIR/"
+if [[ $PKCS12 == "YES" ]]; then
 
-mv "$TMPDIR/certs/$CLIENTNAME.pem" "$OUTDIR/"
-mv "$TMPDIR/keys/$CLIENTNAME.key" "$OUTDIR/"
-mv "$TMPDIR/pkcs12/$CLIENTNAME.p12" "$OUTDIR/"
+    mv "$TMPDIR/pkcs12/$SERVERNAME.p12" "$OUTDIR/"
+    mv "$TMPDIR/pkcs12/$CLIENTNAME.p12" "$OUTDIR/"
 
-mv "$TMPDIR/certs/otca.pem" "$OUTDIR/"
+else
+
+    mv "$TMPDIR/certs/$SERVERNAME.pem" "$OUTDIR/"
+    mv "$TMPDIR/keys/$SERVERNAME.key" "$OUTDIR/"
+
+    mv "$TMPDIR/certs/$CLIENTNAME.pem" "$OUTDIR/"
+    mv "$TMPDIR/keys/$CLIENTNAME.key" "$OUTDIR/"
+
+    mv "$TMPDIR/certs/otca.pem" "$OUTDIR/"
+
+fi
 
