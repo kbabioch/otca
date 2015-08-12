@@ -50,11 +50,15 @@ VERBOSE="NO"
 
 # Output a prefixed error message and exit with given code
 # $1: Exit code
-# $2: Error message
+# $2: Error message (optional)
 error()
 {
 
-    echo "ERROR: $2" >&2
+    if [[ ! -z "$2" ]]; then
+
+        echo "ERROR: $2" >&2
+
+    fi
 
     exit $1
 
