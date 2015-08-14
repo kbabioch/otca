@@ -21,7 +21,7 @@
 VERSION="1"
 
 # Various exit codes used throughout the program
-EXIT_INVALID_OPTIONS=1
+EXIT_INVALID_OPTION=1
 EXIT_NO_TMPDIR=2
 
 # Name of the server if not set explicitly
@@ -375,21 +375,21 @@ done
 # Check for correct number of arguments
 if [[ "$#" != 1 ]]; then
 
-    error $EXIT_INVALID_OPTIONS "Wrong number of arguments!"
+    error $EXIT_INVALID_OPTION "Wrong number of arguments!"
 
 fi
 
 # Check for empty servername
 if [[ -z "$SERVERNAME" ]]; then
 
-    error $EXIT_INVALID_OPTIONS "Servername must not be empty!"
+    error $EXIT_INVALID_OPTION "Servername must not be empty!"
 
 fi
 
 # Check for empty clientname
 if [[ -z "$1" ]]; then
 
-    error $EXIT_INVALID_OPTIONS "Clientname must not be empty!"
+    error $EXIT_INVALID_OPTION "Clientname must not be empty!"
 
 fi
 
@@ -399,28 +399,28 @@ CLIENTNAME="$1"
 # Check if servername is different from clientname
 if [[ "$SERVERNAME" == "$CLIENTNAME" ]]; then
 
-    error $EXIT_INVALID_OPTIONS "Servername and clientname must be different!"
+    error $EXIT_INVALID_OPTION "Servername and clientname must be different!"
 
 fi
 
 # Check for empty bits
 if [[ -z "$BITS" ]]; then
 
-    error $EXIT_INVALID_OPTIONS "Empty number of bits!"
+    error $EXIT_INVALID_OPTION "Empty number of bits!"
 
 fi
 
 # Check for empty years
 if [[ -z "$YEARS" ]]; then
 
-    error $EXIT_INVALID_OPTIONS "Empty number of years!"
+    error $EXIT_INVALID_OPTION "Empty number of years!"
 
 fi
 
 # Check if OpenSSL configuration file exists
 if [[ ! -f "$CONFFILE" ]]; then
 
-    error $EXIT_INVALID_OPTIONS "OpenSSL configuration file does not exist!"
+    error $EXIT_INVALID_OPTION "OpenSSL configuration file does not exist!"
 
 fi
 
@@ -435,7 +435,7 @@ fi
 # Check if output directory already exists
 if [[ -d "$OUTDIR" ]]; then
 
-    error $EXIT_INVALID_OPTIONS "Output directory already exists!"
+    error $EXIT_INVALID_OPTION "Output directory already exists!"
 
 fi
 
