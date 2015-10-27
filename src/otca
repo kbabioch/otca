@@ -40,6 +40,12 @@ YEARS="5"
 # Default OpenSSL config file
 CONFFILE="/etc/otca/otca.cnf"
 
+# Startdate (yesterday by default)
+STARTDATE=$(date "+%y%m%d000000Z" -d "- 1 day")
+
+# Enddate (today + $YEARS by default)"
+ENDDATE=$(date "+%y%m%d000000Z" -d "+ $YEARS years")
+
 # Name of output directory
 OUTDIR=""
 
@@ -81,6 +87,8 @@ help()
 
       -b, --bits=               Number of bits of the RSA keys, 2048 by default
       -y, --years=              Number of years certificates should be valid for, 3 by default
+          --startdate=          Start date of the certificates (notBefore date), yesterday by default
+          --enddate=            End date of the certificates (notAfter date), see -y/--years for default
 
       -p, --pkcs12              Create PKCS12 files instead of PEM keys and certificates
       -d, --dir=                Name of output directory, "$SERVERNAME+$CLIENTNAME" by default
@@ -127,7 +135,10 @@ info()
         Config:     $CONFFILE
 
         Bits:       $BITS
+
         Years:      $YEARS
+        Start date: $STARTDATE
+        End date:   $ENDDATE
 
         PKCS12:     $PKCS12
         Output dir: $OUTDIR
@@ -193,8 +204,8 @@ init_otca()
         -name otca_ca \
         -extensions otca_ext_ca \
         -in csr/otca.csr \
-        -startdate $(date "+%y%m%d000000Z") \
-        -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
+        -startdate "$STARTDATE" \
+        -enddate "$ENDDATE" \
         -out certs/otca.pem \
         -batch \
         > /dev/null 2>&1
@@ -238,8 +249,8 @@ sign_csr()
         -name otca_ca \
         -extensions "$2" \
         -in "csr/$1.csr" \
-        -startdate $(date "+%y%m%d000000Z") \
-        -enddate $(date "+%y%m%d000000Z" -d "+ $YEARS years") \
+        -startdate "$STARTDATE" \
+        -enddate "$ENDDATE" \
         -out "certs/$1.pem" \
         -batch \
         > /dev/null 2>&1
@@ -332,6 +343,19 @@ do
             YEARS="${i#*=}"
             shift
             ;;
+
+        # Set startdate (long)
+        --startdate=*)
+            STARTDATE="${i#*=}"
+            shift
+            ;;
+
+        # Set end date (long)
+        --enddate=*)
+            ENDDATE="${i#*=}"
+            shift
+            ;;
+
 
         # Enable PKCS12 mode (short & long)
         -p|--pkcs12)
