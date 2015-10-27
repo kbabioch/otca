@@ -31,15 +31,6 @@ DIR_CERTS="certs"
 DIR_KEYS="keys"
 DIR_PKCS12="pkcs12"
 
-# Number of bits of the key(s)
-BITS="2048"
-
-# Number of years certificate should be valid for
-YEARS="5"
-
-# Default OpenSSL config file
-CONFFILE="/etc/otca/otca.cnf"
-
 # Flag for PKCS12 mode
 PKCS12="False"
 
@@ -455,14 +446,34 @@ fi
 # Check for empty bits
 if [[ -z "$BITS" ]]; then
 
-    error $EXIT_INVALID_OPTION "Empty number of bits!"
+    # 2048 by default
+    BITS="2048"
+
+else
+
+    # Check for integer
+    if [[ ! $BITS =~ ^[0-9]+$ ]]; then
+
+        error $EXIT_INVALID_OPTION "Invalid number of bits!"
+
+    fi
 
 fi
 
 # Check for empty years
 if [[ -z "$YEARS" ]]; then
 
-    error $EXIT_INVALID_OPTION "Empty number of years!"
+    # 5 years by default
+    YEARS="5"
+
+else
+
+    # Check for integer
+    if [[ ! $YEARS =~ ^[0-9]+$ ]]; then
+
+        error $EXIT_INVALID_OPTION "Invalid number of years!"
+
+    fi
 
 fi
 
@@ -487,9 +498,26 @@ if [[ -z "$ENDDATE" ]]; then
     # today + $YEARS by default"
     ENDDATE=$(date "+%Y-%m-%d" -d "$STARTDATE + $YEARS years")
 
+else
+
+    # Check if provided enddate is actually valid
+    if ! date_validate "$ENDDATE"; then
+
+        error $EXIT_INVALID_OPTION "Invalid startdate provided!"
+
+    fi
+
 fi
 
-# Check if OpenSSL configuration file exists
+# Check if OpenSSL configuration file was provided
+if [[ -z "$CONFFILE" ]]; then
+
+    # Use default one
+    CONFFILE="/etc/otca/otca.cnf"
+
+fi
+
+# Check if OpenSSL configuration file actually exists
 if [[ ! -f "$CONFFILE" ]]; then
 
     error $EXIT_INVALID_OPTION "OpenSSL configuration file does not exist!"
