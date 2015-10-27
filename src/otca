@@ -41,13 +41,13 @@ YEARS="5"
 CONFFILE="/etc/otca/otca.cnf"
 
 # Flag for PKCS12 mode
-PKCS12="FALSE"
+PKCS12="False"
 
 # Flag for verbose output
-VERBOSE="FALSE"
+VERBOSE="False"
 
 # Flag for forcibly overwriting output directory
-FORCE="FALSE"
+OVERWRITE="False"
 
 # Output a prefixed error message and exit with given code
 # $1: Exit code
@@ -137,7 +137,7 @@ info()
 
         PKCS12:     $PKCS12
         Output dir: $OUTDIR
-        Overwrite:  $FORCE
+        Overwrite:  $OVERWRITE
 
         Verbose:    $VERBOSE
         Tempdir:    $TMPDIR
@@ -367,7 +367,7 @@ do
 
         # Enable PKCS12 mode (short & long)
         -p|--pkcs12)
-            PKCS12="TRUE"
+            PKCS12="True"
             shift
             ;;
 
@@ -385,13 +385,13 @@ do
 
         # Set force flag (short & long)
         -f|--force)
-            FORCE="TRUE"
+            OVERWRITE="True"
             shift
             ;;
 
         # Enable verbose mode (short & long)
         -v|--verbose)
-            VERBOSE="TRUE"
+            VERBOSE="True"
             shift
             ;;
 
@@ -505,7 +505,7 @@ if [[ -z "$OUTDIR" ]]; then
 fi
 
 # Check if output directory already exists
-if [[ -d "$OUTDIR" && "$FORCE" != "TRUE" ]]; then
+if [[ -d "$OUTDIR" && "$OVERWRITE" != "True" ]]; then
 
     error $EXIT_INVALID_OPTION "Output directory already exists!"
 
@@ -532,7 +532,7 @@ sign_csr "$SERVERNAME" otca_ext_server
 sign_csr "$CLIENTNAME" otca_ext_client
 
 # Create PKCS12
-if [[ $PKCS12 == "TRUE" ]]; then
+if [[ $PKCS12 == "True" ]]; then
 
     create_pkcs12 "$SERVERNAME"
     create_pkcs12 "$CLIENTNAME"
@@ -546,7 +546,7 @@ popd > /dev/null 2>&1
 mkdir -p "$OUTDIR"
 
 # Move relevant files
-if [[ $PKCS12 == "TRUE" ]]; then
+if [[ $PKCS12 == "True" ]]; then
 
     mv "$TMPDIR/${DIR_PKCS12}/$SERVERNAME.p12" "$OUTDIR/"
     mv "$TMPDIR/${DIR_PKCS12}/$CLIENTNAME.p12" "$OUTDIR/"
