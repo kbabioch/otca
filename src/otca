@@ -87,7 +87,7 @@ help()
 
       -p, --pkcs12              Create PKCS12 files instead of PEM keys and certificates
 
-      -o, --outdir              Name of output directory, "$SERVERNAME+$CLIENTNAME" by default
+      -o, --outdir              Name of output directory, "SERVERNAME+CLIENTNAME" by default
       -f, --force               Force overwrite if output directory already exists
 
       -v, --verbose             Enable verbose output
