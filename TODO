@@ -1,14 +1,14 @@
 - Register trap for error handling of openssl command block
 
-- Option for output format (PEM vs PKCS12)
-
-- Clean up(s): Functions for tedious tasks
-
 - Option for tarball?
 
-- Option for verbose output
-
-- Copy certificates to working directory
-
 - Option to keep keys/files
+
+- Fix years handling (should be relative to start date, not relativ to now)
+
+- Verbose flag should also impact OpenSSL output
+
+- Debug flag (keep files and directories around)
+
+- Parameter for OpenSSL extension name
 
