@@ -31,12 +31,6 @@ DIR_CERTS="certs"
 DIR_KEYS="keys"
 DIR_PKCS12="pkcs12"
 
-# Name of the server if not set explicitly
-SERVERNAME=""
-
-# Name of the client, empty by default
-CLIENTNAME=""
-
 # Number of bits of the key(s)
 BITS="2048"
 
