@@ -46,11 +46,11 @@ YEARS="5"
 # Default OpenSSL config file
 CONFFILE="/etc/otca/otca.cnf"
 
-# Startdate (yesterday by default)
-STARTDATE=$(date "+%y%m%d000000Z" -d "- 1 day")
+# Startdate (notBefore)
+STARTDATE=""
 
-# Enddate (today + $YEARS by default)"
-ENDDATE=$(date "+%y%m%d000000Z" -d "+ $YEARS years")
+# Enddate (notAfter)
+ENDDATE=""
 
 # Name of output directory
 OUTDIR=""
@@ -91,8 +91,8 @@ help()
 
       -b, --bits=               Number of bits of the RSA keys, 2048 by default
       -y, --years=              Number of years certificates should be valid for, 3 by default
-          --startdate=          Start date of the certificates (notBefore date), yesterday by default
-          --enddate=            End date of the certificates (notAfter date), see -y/--years for default
+          --startdate=          Start date of the certificates (notBefore), yesterday by default, format: YYYY-MM-DD
+          --enddate=            End date of the certificates (notAfter), see -y/--years for default, format: YYYY-MM-DD
 
       -p, --pkcs12              Create PKCS12 files instead of PEM keys and certificates
       -d, --dir=                Name of output directory, "$SERVERNAME+$CLIENTNAME" by default
@@ -209,8 +209,8 @@ init_otca()
         -name otca_ca \
         -extensions otca_ext_ca \
         -in "${DIR_CSR}/otca.csr" \
-        -startdate "$STARTDATE" \
-        -enddate "$ENDDATE" \
+        -startdate $(date_asn1_utc "$STARTDATE") \
+        -enddate $(date_asn1_utc "$ENDDATE") \
         -out "${DIR_CERTS}/otca.pem" \
         -batch \
         > /dev/null 2>&1
@@ -254,8 +254,8 @@ sign_csr()
         -name otca_ca \
         -extensions "$2" \
         -in "${DIR_CSR}/$1.csr" \
-        -startdate "$STARTDATE" \
-        -enddate "$ENDDATE" \
+        -startdate $(date_asn1_utc "$STARTDATE") \
+        -enddate $(date_asn1_utc "$ENDDATE") \
         -out "${DIR_CERTS}/$1.pem" \
         -batch \
         > /dev/null 2>&1
@@ -294,6 +294,31 @@ cleanup()
 
 # Execute cleanup function for particular signals
 trap cleanup SIGINT SIGQUIT SIGTERM EXIT
+
+# Validates a given date
+#
+# $1: Date to validate
+#
+# Returns 0 if valid, 1 otherwise
+date_validate()
+{
+
+    date -d "$1" > /dev/null 2>&1
+    return $?
+
+}
+
+# Converts given date to ASN1 UTCTime structure as required by OpenSSL
+#
+# $1: Date (format: YYYY-MM-DD)
+#
+# Returns converted date in YYMMDDHHMMSSZ format
+date_asn1_utc()
+{
+
+    date "+%y%m%d000000Z" -d "$1"
+
+}
 
 # Parse options provided as command line arguments
 for i in "$@"
@@ -441,6 +466,29 @@ fi
 if [[ -z "$YEARS" ]]; then
 
     error $EXIT_INVALID_OPTION "Empty number of years!"
+
+fi
+
+if [[ -z "$STARTDATE" ]]; then
+
+    # yesterday by default
+    STARTDATE=$(date "+%Y-%m-%d" -d "- 1 day")
+
+else
+
+    # Check if provided startdate is actually valid
+    if ! date_validate "$STARTDATE"; then
+
+        error $EXIT_INVALID_OPTION "Invalid startdate provided!"
+
+    fi
+
+fi
+
+if [[ -z "$ENDDATE" ]]; then
+
+    # today + $YEARS by default"
+    ENDDATE=$(date "+%Y-%m-%d" -d "$STARTDATE + $YEARS years")
 
 fi
 
