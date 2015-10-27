@@ -25,6 +25,12 @@ EXIT_INVALID_OPTION=1
 EXIT_NO_TMPDIR=2
 EXIT_OPENSSL_ERROR=3
 
+# OpenSSL directories
+DIR_CSR="csr"
+DIR_CERTS="certs"
+DIR_KEYS="keys"
+DIR_PKCS12="pkcs12"
+
 # Name of the server if not set explicitly
 SERVERNAME=""
 
@@ -179,16 +185,16 @@ init_otca()
 
     # Create necessary files and directories (required by OpenSSL's ca(1))
     touch database serial
-    mkdir -p certs csr keys pkcs12
+    mkdir -p "${DIR_CSR}" "${DIR_CERTS}" "${DIR_KEYS}" "${DIR_PKCS12}"
 
     # Create CSR for OTCA itself
     openssl req \
         -newkey rsa:"$BITS" \
-        -keyout "keys/otca.key" \
+        -keyout "${DIR_KEYS}/otca.key" \
         -nodes \
         -config "$CONFFILE" \
         -subj "/CN=OTCA $SERVERNAME+$CLIENTNAME" \
-        -out "csr/otca.csr" \
+        -out "${DIR_CSR}/otca.csr" \
         -batch \
         > /dev/null 2>&1
 
@@ -199,13 +205,13 @@ init_otca()
     openssl ca \
         -config "$CONFFILE" \
         -selfsign \
-        -keyfile keys/otca.key \
+        -keyfile "${DIR_KEYS}/otca.key" \
         -name otca_ca \
         -extensions otca_ext_ca \
-        -in csr/otca.csr \
+        -in "${DIR_CSR}/otca.csr" \
         -startdate "$STARTDATE" \
         -enddate "$ENDDATE" \
-        -out certs/otca.pem \
+        -out "${DIR_CERTS}/otca.pem" \
         -batch \
         > /dev/null 2>&1
 
@@ -220,11 +226,11 @@ create_csr()
     # Create CSR
     openssl req \
         -newkey rsa:"$BITS" \
-        -keyout "keys/$1.key" \
+        -keyout "${DIR_KEYS}/$1.key" \
         -nodes \
         -config "$CONFFILE" \
         -subj "/CN=$1" \
-        -out "csr/$1.csr" \
+        -out "${DIR_CSR}/$1.csr" \
         -batch \
         > /dev/null 2>&1
 
@@ -243,14 +249,14 @@ sign_csr()
     # Sign CSR
     openssl ca \
         -config "$CONFFILE" \
-        -keyfile keys/otca.key \
-        -cert certs/otca.pem \
+        -keyfile "${DIR_KEYS}/otca.key" \
+        -cert "${DIR_CERTS}/otca.pem" \
         -name otca_ca \
         -extensions "$2" \
-        -in "csr/$1.csr" \
+        -in "${DIR_CSR}/$1.csr" \
         -startdate "$STARTDATE" \
         -enddate "$ENDDATE" \
-        -out "certs/$1.pem" \
+        -out "${DIR_CERTS}/$1.pem" \
         -batch \
         > /dev/null 2>&1
 
@@ -265,11 +271,11 @@ create_pkcs12()
     # Create PKCS12 file
     openssl pkcs12 \
         -export \
-        -out "pkcs12/$1.p12" \
+        -out "${DIR_PKCS12}/$1.p12" \
         -passout pass: \
-        -inkey "keys/$1.key" \
-        -in "certs/$1.pem" \
-        -certfile certs/otca.pem \
+        -inkey "${DIR_KEYS}/$1.key" \
+        -in "${DIR_CERTS}/$1.pem" \
+        -certfile "${DIR_CERTS}/otca.pem" \
         > /dev/null 2>&1
 
 }
@@ -497,18 +503,18 @@ mkdir "$OUTDIR"
 # Move relevant files
 if [[ $PKCS12 == "YES" ]]; then
 
-    mv "$TMPDIR/pkcs12/$SERVERNAME.p12" "$OUTDIR/"
-    mv "$TMPDIR/pkcs12/$CLIENTNAME.p12" "$OUTDIR/"
+    mv "$TMPDIR/${DIR_PKCS12}/$SERVERNAME.p12" "$OUTDIR/"
+    mv "$TMPDIR/${DIR_PKCS12}/$CLIENTNAME.p12" "$OUTDIR/"
 
 else
 
-    mv "$TMPDIR/certs/$SERVERNAME.pem" "$OUTDIR/"
-    mv "$TMPDIR/keys/$SERVERNAME.key" "$OUTDIR/"
+    mv "$TMPDIR/${DIR_CERTS}/$SERVERNAME.pem" "$OUTDIR/"
+    mv "$TMPDIR/${DIR_KEYS}/$SERVERNAME.key" "$OUTDIR/"
 
-    mv "$TMPDIR/certs/$CLIENTNAME.pem" "$OUTDIR/"
-    mv "$TMPDIR/keys/$CLIENTNAME.key" "$OUTDIR/"
+    mv "$TMPDIR/${DIR_CERTS}/$CLIENTNAME.pem" "$OUTDIR/"
+    mv "$TMPDIR/${DIR_KEYS}/$CLIENTNAME.key" "$OUTDIR/"
 
-    mv "$TMPDIR/certs/otca.pem" "$OUTDIR/"
+    mv "$TMPDIR/${DIR_CERTS}/otca.pem" "$OUTDIR/"
 
 fi
 
