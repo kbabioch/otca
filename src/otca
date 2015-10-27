@@ -23,6 +23,7 @@ VERSION="1"
 # Various exit codes used throughout the program
 EXIT_INVALID_OPTION=1
 EXIT_NO_TMPDIR=2
+EXIT_OPENSSL_ERROR=3
 
 # Name of the server if not set explicitly
 SERVERNAME=$(hostname)
