@@ -37,6 +37,9 @@ PKCS12="False"
 # Flag for verbose output
 VERBOSE="False"
 
+# Debug (will keep temporary files and activate verbose output)
+DEBUG="False"
+
 # Flag for forcibly overwriting output directory
 OVERWRITE="False"
 
@@ -75,10 +78,11 @@ help()
 
       -p, --pkcs12              Create PKCS12 files instead of PEM keys and certificates
 
-      -d, --dir=                Name of output directory, "$SERVERNAME+$CLIENTNAME" by default
+      -o, --outdir              Name of output directory, "$SERVERNAME+$CLIENTNAME" by default
       -f, --force               Force overwrite if output directory already exists
 
       -v, --verbose             Enable verbose output
+      -d, --debug               Enable debug mode (potentially DANGEROUS, since it will keep temporary keys around)
 
       -h, --help                Show this usage help
           --version             Show version information
@@ -131,6 +135,7 @@ info()
         Overwrite:  $OVERWRITE
 
         Verbose:    $VERBOSE
+        Debug:      $DEBUG
         Tempdir:    $TMPDIR
 
 EOF
@@ -274,9 +279,6 @@ cleanup()
 
 }
 
-# Execute cleanup function for particular signals
-trap cleanup SIGINT SIGQUIT SIGTERM EXIT
-
 # Validates a given date
 #
 # $1: Date to validate
@@ -363,13 +365,13 @@ do
             ;;
 
         # Set output directory (short)
-        -d)
+        -o)
             OUTDIR="$2"
             shift 2
             ;;
 
         # Set output directory (long)
-        --dir=*)
+        --outdir=*)
             OUTDIR="${i#*=}"
             shift
             ;;
@@ -382,6 +384,14 @@ do
 
         # Enable verbose mode (short & long)
         -v|--verbose)
+            VERBOSE="True"
+            shift
+            ;;
+
+        # Enable debug mode (short & long)
+        -d|--debug)
+            DEBUG="True"
+            # Also enable verbose mode implicetely
             VERBOSE="True"
             shift
             ;;
@@ -547,6 +557,13 @@ if [[ "$VERBOSE" == "True" ]]; then
 else
 
     exec 3> /dev/null
+
+fi
+
+# Only cleanup if not in debug mode
+if [[ "$DEBUG" == "False" ]]; then
+
+    trap cleanup SIGINT SIGQUIT SIGTERM EXIT
 
 fi
 

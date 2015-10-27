@@ -1,12 +1,2 @@
-- Register trap for error handling of openssl command block
-
-- Option for tarball?
-
-- Option to keep keys/files
-
-- Verbose flag should also impact OpenSSL output
-
-- Debug flag (keep files and directories around)
-
 - Parameter for OpenSSL extension name
 
