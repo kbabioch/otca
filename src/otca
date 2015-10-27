@@ -26,7 +26,7 @@ EXIT_NO_TMPDIR=2
 EXIT_OPENSSL_ERROR=3
 
 # Name of the server if not set explicitly
-SERVERNAME=$(hostname)
+SERVERNAME=""
 
 # Name of the client, empty by default
 CLIENTNAME=""
@@ -77,11 +77,9 @@ help()
 
     cat << EOF
 
-    Usage: $0 [OPTIONS...] CLIENTNAME
+    Usage: $0 [OPTIONS...] [SERVERNAME] CLIENTNAME
 
     OPTIONS:
-
-      -s, --servername=         Set name of the server explicitly, rather than using the hostname of the machine
 
       -c, --config=             Location of OpenSSL configuration file
 
@@ -98,6 +96,7 @@ help()
       -h, --help                Show this usage help
           --version             Show version information
 
+    SERVERNAME: Name of the server, optional since hostname is used by default
     CLIENTNAME: Name of the client that the OTCA should be set up for
 
 EOF
@@ -296,18 +295,6 @@ do
 
     case "$i" in
 
-        # Set name of server (short)
-        -s)
-            SERVERNAME="$2"
-            shift 2
-            ;;
-
-        # Set name of server (long)
-        --servername=*)
-            SERVERNAME="${i#*=}"
-            shift
-            ;;
-
         # OpenSSL configuration file (short)
         -c)
             CONFFILE="$2"
@@ -356,7 +343,6 @@ do
             shift
             ;;
 
-
         # Enable PKCS12 mode (short & long)
         -p|--pkcs12)
             PKCS12="YES"
@@ -397,9 +383,21 @@ do
 
 done
 
-# Check for correct number of arguments
-if [[ "$#" != 1 ]]; then
+# Check number of arguments
+if [[ "$#" == 1 ]]; then
 
+    # Only clientname was given
+    CLIENTNAME="$1"
+
+elif [[ "$#" == 2 ]]; then
+
+    # Server and clientname were given
+    SERVERNAME="$1"
+    CLIENTNAME="$2"
+
+else
+
+    # Invalid number of arguments
     error $EXIT_INVALID_OPTION "Wrong number of arguments!"
 
 fi
@@ -407,19 +405,17 @@ fi
 # Check for empty servername
 if [[ -z "$SERVERNAME" ]]; then
 
-    error $EXIT_INVALID_OPTION "Servername must not be empty!"
+    # Use hostname if not provided as argument
+    SERVERNAME=$(hostname)
 
 fi
 
 # Check for empty clientname
-if [[ -z "$1" ]]; then
+if [[ -z "$CLIENTNAME" ]]; then
 
     error $EXIT_INVALID_OPTION "Clientname must not be empty!"
 
 fi
-
-# Clientname was provided as command line argument
-CLIENTNAME="$1"
 
 # Check if servername is different from clientname
 if [[ "$SERVERNAME" == "$CLIENTNAME" ]]; then
