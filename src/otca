@@ -75,6 +75,11 @@ help()
 
       -c, --config=             Location of OpenSSL configuration file
 
+          --section=            Section in configuration file to use (otca_ca by default)
+          --ext-ca=             Name of extensions for CA certificate (otca_ext_ca by default)
+          --ext-server=         Name of extensions for server certificate (otca_ext_server by default)
+          --ext-client=         Name of extensions for client certificate (otca_ext_client by default)
+
       -b, --bits=               Number of bits of the RSA keys, 2048 by default
       -y, --years=              Number of years certificates should be valid for, 3 by default
           --startdate=          Start date of the certificates (notBefore), yesterday by default, format: YYYY-MM-DD
@@ -127,6 +132,10 @@ info()
         Client:     $CLIENTNAME
 
         Config:     $CONFFILE
+        Section:    $SECTION
+        CA ext:     ${EXT_CA}
+        Server ext: ${EXT_SERVER}
+        Client ext: ${EXT_CLIENT}
 
         Bits:       $BITS
 
@@ -197,8 +206,8 @@ init_otca()
         -config "$CONFFILE" \
         -selfsign \
         -keyfile "${OPENSSL_KEYS_DIR}/otca.key" \
-        -name otca_ca \
-        -extensions otca_ext_ca \
+        -name "$SECTION" \
+        -extensions "${EXT_CA}" \
         -in "${OPENSSL_CSR_DIR}/otca.csr" \
         -startdate $(date_asn1_utc "$STARTDATE") \
         -enddate $(date_asn1_utc "$ENDDATE") \
@@ -242,7 +251,7 @@ sign_csr()
         -config "$CONFFILE" \
         -keyfile "${OPENSSL_KEYS_DIR}/otca.key" \
         -cert "${OPENSSL_CERTS_DIR}/otca.pem" \
-        -name otca_ca \
+        -name "$SECTION" \
         -extensions "$2" \
         -in "${OPENSSL_CSR_DIR}/$1.csr" \
         -startdate $(date_asn1_utc "$STARTDATE") \
@@ -323,6 +332,30 @@ do
         # OpenSSL configuration file (long)
         --config=*)
             CONFFILE="${i#*=}"
+            shift
+            ;;
+
+        # OpenSSL section name (long)
+        --section=*)
+            SECTION="${i#*=}"
+            shift
+            ;;
+
+        # OpenSSL extensions for CA (long)
+        --ext-ca=*)
+            EXT_CA="${i#*=}"
+            shift
+            ;;
+
+        # OpenSSL extensions for server (long)
+        --ext-server=*)
+            EXT_SERVER="${i#*=}"
+            shift
+            ;;
+
+        # OpenSSL extensions for client (long)
+        --ext-client=*)
+            EXT_CLIENT="${i#*=}"
             shift
             ;;
 
@@ -538,6 +571,38 @@ if [[ ! -f "$CONFFILE" ]]; then
 
 fi
 
+# Check if section name was provided
+if [[ -z "$SECTION" ]]; then
+
+    # Default
+    SECTION="otca_ca"
+
+fi
+
+# Check if CA extensions were provided
+if [[ -z "${EXT_CA}" ]]; then
+
+    # Default
+    EXT_CA="otca_ext_ca"
+
+fi
+
+# Check if server extensions were provided
+if [[ -z "${EXT_SERVER}" ]]; then
+
+    # Default
+    EXT_SERVER="otca_ext_server"
+
+fi
+
+# Check if client extensions were provided
+if [[ -z "${EXT_CLIENT}" ]]; then
+
+    # Default
+    EXT_CLIENT="otca_ext_client"
+
+fi
+
 # Check if output directory was set
 if [[ -z "$OUTDIR" ]]; then
 
@@ -588,8 +653,8 @@ create_csr "$SERVERNAME"
 create_csr "$CLIENTNAME"
 
 # Sign CSRs with appropriate extensions
-sign_csr "$SERVERNAME" otca_ext_server
-sign_csr "$CLIENTNAME" otca_ext_client
+sign_csr "$SERVERNAME" "${EXT_SERVER}"
+sign_csr "$CLIENTNAME" "${EXT_CLIENT}"
 
 # Create PKCS12
 if [[ $PKCS12 == "True" ]]; then
