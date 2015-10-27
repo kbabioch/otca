@@ -31,6 +31,10 @@ OPENSSL_CERTS_DIR="certs"
 OPENSSL_KEYS_DIR="keys"
 OPENSSL_PKCS12_DIR="pkcs12"
 
+# OpenSSL files
+OPENSSL_DATABASE="database"
+OPENSSL_SERIAL="serial"
+
 # Flag for PKCS12 mode
 PKCS12="False"
 
@@ -159,7 +163,7 @@ random_hex()
 randomize_serial()
 {
 
-    random_hex 20 > serial
+    random_hex 20 > ${OPENSSL_SERIAL}
 
 }
 
@@ -171,7 +175,7 @@ init_otca()
 {
 
     # Create necessary files and directories (required by OpenSSL's ca(1))
-    touch database serial
+    touch "${OPENSSL_DATABASE}"
     mkdir -p "${OPENSSL_CSR_DIR}" "${OPENSSL_CERTS_DIR}" "${OPENSSL_KEYS_DIR}" "${OPENSSL_PKCS12_DIR}"
 
     # Create CSR for OTCA itself
