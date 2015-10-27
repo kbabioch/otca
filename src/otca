@@ -178,7 +178,7 @@ init_otca()
         -subj "/CN=OTCA $SERVERNAME+$CLIENTNAME" \
         -out "${DIR_CSR}/otca.csr" \
         -batch \
-        > /dev/null 2>&1
+        >&3 2>&3
 
     # Randomize serial
     randomize_serial
@@ -195,7 +195,7 @@ init_otca()
         -enddate $(date_asn1_utc "$ENDDATE") \
         -out "${DIR_CERTS}/otca.pem" \
         -batch \
-        > /dev/null 2>&1
+        >&3 2>&3
 
 }
 
@@ -214,7 +214,7 @@ create_csr()
         -subj "/CN=$1" \
         -out "${DIR_CSR}/$1.csr" \
         -batch \
-        > /dev/null 2>&1
+        >&3 2>&3
 
 }
 
@@ -240,7 +240,7 @@ sign_csr()
         -enddate $(date_asn1_utc "$ENDDATE") \
         -out "${DIR_CERTS}/$1.pem" \
         -batch \
-        > /dev/null 2>&1
+        >&3 2>&3
 
 }
 
@@ -258,7 +258,7 @@ create_pkcs12()
         -inkey "${DIR_KEYS}/$1.key" \
         -in "${DIR_CERTS}/$1.pem" \
         -certfile "${DIR_CERTS}/otca.pem" \
-        > /dev/null 2>&1
+        >&3 2>&3
 
 }
 
@@ -539,11 +539,22 @@ if [[ -d "$OUTDIR" && "$OVERWRITE" == "False" ]]; then
 
 fi
 
+# Check verbosity flag and attach new stream to stdout or /dev/null
+if [[ "$VERBOSE" == "True" ]]; then
+
+    exec 3>&1
+
+else
+
+    exec 3> /dev/null
+
+fi
+
 # Create temporary scratch space
 TMPDIR=$(mktemp -d) || exit $EXIT_NO_TMPDIR
 
 # Output information about configuration
-info
+info >&3
 
 # Save current working directory on directory stack and change to TMPDIR
 pushd "$TMPDIR" > /dev/null 2>&1
