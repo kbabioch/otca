@@ -26,10 +26,10 @@ EXIT_NO_TMPDIR=2
 EXIT_OPENSSL_ERROR=3
 
 # OpenSSL directories
-DIR_CSR="csr"
-DIR_CERTS="certs"
-DIR_KEYS="keys"
-DIR_PKCS12="pkcs12"
+OPENSSL_CSR_DIR="csr"
+OPENSSL_CERTS_DIR="certs"
+OPENSSL_KEYS_DIR="keys"
+OPENSSL_PKCS12_DIR="pkcs12"
 
 # Flag for PKCS12 mode
 PKCS12="False"
@@ -172,16 +172,16 @@ init_otca()
 
     # Create necessary files and directories (required by OpenSSL's ca(1))
     touch database serial
-    mkdir -p "${DIR_CSR}" "${DIR_CERTS}" "${DIR_KEYS}" "${DIR_PKCS12}"
+    mkdir -p "${OPENSSL_CSR_DIR}" "${OPENSSL_CERTS_DIR}" "${OPENSSL_KEYS_DIR}" "${OPENSSL_PKCS12_DIR}"
 
     # Create CSR for OTCA itself
     openssl req \
         -newkey rsa:"$BITS" \
-        -keyout "${DIR_KEYS}/otca.key" \
+        -keyout "${OPENSSL_KEYS_DIR}/otca.key" \
         -nodes \
         -config "$CONFFILE" \
         -subj "/CN=OTCA $SERVERNAME+$CLIENTNAME" \
-        -out "${DIR_CSR}/otca.csr" \
+        -out "${OPENSSL_CSR_DIR}/otca.csr" \
         -batch \
         >&3 2>&3
 
@@ -192,13 +192,13 @@ init_otca()
     openssl ca \
         -config "$CONFFILE" \
         -selfsign \
-        -keyfile "${DIR_KEYS}/otca.key" \
+        -keyfile "${OPENSSL_KEYS_DIR}/otca.key" \
         -name otca_ca \
         -extensions otca_ext_ca \
-        -in "${DIR_CSR}/otca.csr" \
+        -in "${OPENSSL_CSR_DIR}/otca.csr" \
         -startdate $(date_asn1_utc "$STARTDATE") \
         -enddate $(date_asn1_utc "$ENDDATE") \
-        -out "${DIR_CERTS}/otca.pem" \
+        -out "${OPENSSL_CERTS_DIR}/otca.pem" \
         -batch \
         >&3 2>&3
 
@@ -213,11 +213,11 @@ create_csr()
     # Create CSR
     openssl req \
         -newkey rsa:"$BITS" \
-        -keyout "${DIR_KEYS}/$1.key" \
+        -keyout "${OPENSSL_KEYS_DIR}/$1.key" \
         -nodes \
         -config "$CONFFILE" \
         -subj "/CN=$1" \
-        -out "${DIR_CSR}/$1.csr" \
+        -out "${OPENSSL_CSR_DIR}/$1.csr" \
         -batch \
         >&3 2>&3
 
@@ -236,14 +236,14 @@ sign_csr()
     # Sign CSR
     openssl ca \
         -config "$CONFFILE" \
-        -keyfile "${DIR_KEYS}/otca.key" \
-        -cert "${DIR_CERTS}/otca.pem" \
+        -keyfile "${OPENSSL_KEYS_DIR}/otca.key" \
+        -cert "${OPENSSL_CERTS_DIR}/otca.pem" \
         -name otca_ca \
         -extensions "$2" \
-        -in "${DIR_CSR}/$1.csr" \
+        -in "${OPENSSL_CSR_DIR}/$1.csr" \
         -startdate $(date_asn1_utc "$STARTDATE") \
         -enddate $(date_asn1_utc "$ENDDATE") \
-        -out "${DIR_CERTS}/$1.pem" \
+        -out "${OPENSSL_CERTS_DIR}/$1.pem" \
         -batch \
         >&3 2>&3
 
@@ -258,11 +258,11 @@ create_pkcs12()
     # Create PKCS12 file
     openssl pkcs12 \
         -export \
-        -out "${DIR_PKCS12}/$1.p12" \
+        -out "${OPENSSL_PKCS12_DIR}/$1.p12" \
         -passout pass: \
-        -inkey "${DIR_KEYS}/$1.key" \
-        -in "${DIR_CERTS}/$1.pem" \
-        -certfile "${DIR_CERTS}/otca.pem" \
+        -inkey "${OPENSSL_KEYS_DIR}/$1.key" \
+        -in "${OPENSSL_CERTS_DIR}/$1.pem" \
+        -certfile "${OPENSSL_CERTS_DIR}/otca.pem" \
         >&3 2>&3
 
 }
@@ -604,18 +604,18 @@ mkdir -p "$OUTDIR"
 # Move relevant files
 if [[ $PKCS12 == "True" ]]; then
 
-    mv "$TMPDIR/${DIR_PKCS12}/$SERVERNAME.p12" "$OUTDIR/"
-    mv "$TMPDIR/${DIR_PKCS12}/$CLIENTNAME.p12" "$OUTDIR/"
+    mv "$TMPDIR/${OPENSSL_PKCS12_DIR}/$SERVERNAME.p12" "$OUTDIR/"
+    mv "$TMPDIR/${OPENSSL_PKCS12_DIR}/$CLIENTNAME.p12" "$OUTDIR/"
 
 else
 
-    mv "$TMPDIR/${DIR_CERTS}/$SERVERNAME.pem" "$OUTDIR/"
-    mv "$TMPDIR/${DIR_KEYS}/$SERVERNAME.key" "$OUTDIR/"
+    mv "$TMPDIR/${OPENSSL_CERTS_DIR}/$SERVERNAME.pem" "$OUTDIR/"
+    mv "$TMPDIR/${OPENSSL_KEYS_DIR}/$SERVERNAME.key" "$OUTDIR/"
 
-    mv "$TMPDIR/${DIR_CERTS}/$CLIENTNAME.pem" "$OUTDIR/"
-    mv "$TMPDIR/${DIR_KEYS}/$CLIENTNAME.key" "$OUTDIR/"
+    mv "$TMPDIR/${OPENSSL_CERTS_DIR}/$CLIENTNAME.pem" "$OUTDIR/"
+    mv "$TMPDIR/${OPENSSL_KEYS_DIR}/$CLIENTNAME.key" "$OUTDIR/"
 
-    mv "$TMPDIR/${DIR_CERTS}/otca.pem" "$OUTDIR/"
+    mv "$TMPDIR/${OPENSSL_CERTS_DIR}/otca.pem" "$OUTDIR/"
 
 fi
 
