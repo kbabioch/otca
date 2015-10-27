@@ -533,7 +533,7 @@ if [[ -z "$OUTDIR" ]]; then
 fi
 
 # Check if output directory already exists
-if [[ -d "$OUTDIR" && "$OVERWRITE" != "True" ]]; then
+if [[ -d "$OUTDIR" && "$OVERWRITE" == "False" ]]; then
 
     error $EXIT_INVALID_OPTION "Output directory already exists!"
 
