@@ -21,7 +21,9 @@ DIRS = \
 	/usr/share/man/man1
 
 install:
+ifneq ($(strip $(DESTDIR)),)
 	mkdir -p $(DESTDIR)
+endif
 	$(foreach dir,$(DIRS),install -dm755 $(DESTDIR)$(dir);)
 
 	install -m0775 src/otca $(DESTDIR)/usr/bin
