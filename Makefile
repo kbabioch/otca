@@ -20,7 +20,9 @@ DIRS = \
 	/etc/otca \
 	/usr/share/man/man1
 
+
 install:
+
 ifneq ($(strip $(DESTDIR)),)
 	mkdir -p $(DESTDIR)
 endif
