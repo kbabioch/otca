@@ -1,53 +1,70 @@
 # otca
 
 otca is a script supporting you in quickly setting up a [public-key
-infrastructure][x509] for [OpenVPN][openvpn] installations. Its intended to be
-used in simple point-to-point setups, where you typically only have a single
-server and client. While a static key setup might be easier to configure, a
-certificate based approach provides additional security because of the
-[SSL/TLS handshake][tls] involved (ephemeral keys, forward secrecy).
+infrastructure][x509], mainly intented to be used for simple point-to-point
+[OpenVPN][openvpn] installations. Typically there is only a single server
+and client in such setups. While a static key setup might be easier to
+configure, a certificate based approach provides additional security because
+of the [SSL/TLS handshake][tls] involved (ephemeral keys, forward secrecy).
 
-However generating the appropriate certificates consists of multiple steps
-and quickly becomes inconvinient when it has to be done manually. OpenVPN is
-usually shipped with a set of scripts called [Easy RSA][easy-rsa]. These
-scripts are powerful enough to deal with many PKI aspects (issuing new
-certificates, revoking certificates, creating CRLs, etc.), but are overkill
-in most setups.
+Generating the appropriate certificates consists of multiple steps and quickly
+becomes cumbersome. [Easy RSA][easy-rsa], which is shipped along with OpenVPN
+is a set of scripts powerful enough to deal with many PKI aspects (e.g. issuing
+new certificates, revoking certificates, creating CRLs, etc.). However, this is
+massive overkill in most setups.
 
 This is where otca comes in handy. It will:
 
  - Generate a self-signed CA
 
- - Generate certificates for the server and client and sign them
+ - Generate and sign certificates for the server and client
 
  - Remove CAs private key
 
 The name otca actually stands for One-Time CA, and is a reference to the way
-the CA is used, i.e. only once. The appropriate key is then permanently removed
-and no further certificates can be issued by this CA. In particular it is also
-not possible to revoke certificates.
+the CA is used, i.e. only once. The appropriate key is permanently removed and
+no further actions can be taken by this CA.
 
 In case of a breach, or whenever certificates expire, one simply starts from
-scratch and replaces the old certificates. Given that only two entities are
-involved, this is not too much of a hassle.
+scratch and simply eplaces the old certificates. Given that only two entities
+are involved, this is not too much of a hassle.
+
+## PREREQUISITES
+
+otca is a sophisticated Bash script built around [openssl][openssl]. There are
+no particular restrictions used versions. It has been developed and tested with
+OpenSSL 1.0.2 in mind, but other versions should work fine, too.
 
 ## USAGE
 
 Execute the `otca` script. Its options are described in detail when invoked
-with the `-h` option. Basically you only need to provide a name for the client.
-The default values should be sane enough in most cases.
+with the `-h` option. Basically you only need to provide a name for the client,
+as the default values should be sane enough in most cases.
+
+Most aspects of the generated certificates are controlled with OpenSSL
+configuration files (config(5)). A default configuration file is shippd with
+this script and should be placed under `/etc/otca/otca.cnf`.
+
+## THEORY OF OPERATION
+
+After some basic option and argument parsing, otca sets up a suitable
+temporary environment for the ca(1) command. It then generates and self-signs
+a certificate for the CA, handing over the appropriate options. Afterwards
+a [certificate signing request][csr] for the server and client is generated
+using OpenSSL's req(1) command. These CSRs are then signed by the previously
+created CA using the ca(1) command once more. After moving the created
+certificates and keys into the specified output directory, the temporary
+scratch space is removed, including the CA's private key. This, in essence,
+renders the CA useless, which is the whole point of this very concept.
 
 ## CONTRIBUTIONS
 
-The source code is maintained using git. The project lives over at
-[github.com][github-repo]. Contributions of any kind are highly welcome. The
-simplest and fastest way for these kind of things is to use pull requests, and
-report bugs or submit feature requests.
+The source code is maintained using git and lives over at [github.com][repo].
+Contributions of any kind are highly welcome. The fastest way is to use pull
+requests, and report bugs or submit feature requests.
 
 In case you are looking for something to work on, you probably want to take a
-look at the [issue tracker][issue-tracker], which is used, among other things,
-to coordinate the development of new features. There is more than enough work
-left to do, so feel free to start hacking away ;).
+look at the [issue tracker][tracker] or the `TODO` file in the root directory.
 
 ## DONATIONS
 
@@ -75,10 +92,12 @@ Bitcoin: `1D15BsSb3CNiH7bFgQtAY6KbBVSGKEs9Wb`
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 [x509]: https://en.wikipedia.org/wiki/X.509
-[openvpn]: https://openvpn.net/
+[openssl]: https://www.openssl.org
+[openvpn]: https://openvpn.net
 [tls]: https://en.wikipedia.org/wiki/Transport_Layer_Security
+[csr]: https://en.wikipedia.org/wiki/Certificate_signing_request
 [easy-rsa]: https://openvpn.net/easyrsa.html
 [broken-revocation]: http://news.netcraft.com/archives/2013/05/13/how-certificate-revocation-doesnt-work-in-practice.html
-[github-repo]: https://github.com/kbabioch/otca
-[issue-tracker]: https://github.com/kbabioch/otca/issues
+[github]: https://github.com/kbabioch/otca
+[tracker]: https://github.com/kbabioch/otca/issues
 
