@@ -69,7 +69,7 @@ help()
 
     cat << EOF
 
-    Usage: $0 [OPTIONS...] [SERVERNAME] CLIENTNAME
+    Usage: $0 [OPTIONS]... [SERVERNAME] CLIENTNAME
 
     OPTIONS:
 
