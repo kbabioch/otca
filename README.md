@@ -1,7 +1,7 @@
 # otca
 
-otca is a script supporting you in quickly setting up a [public-key
-infrastructure][x509], mainly intented to be used for simple point-to-point
+otca is a script supporting you in quickly setting up a simple [public-key
+infrastructure][x509]. This, for instance, can be used for point-to-point
 [OpenVPN][openvpn] installations. Typically there is only a single server
 and client in such setups. While a static key setup might be easier to
 configure, a certificate based approach provides additional security because
@@ -52,10 +52,11 @@ temporary environment for the ca(1) command. It then generates and self-signs
 a certificate for the CA, handing over the appropriate options. Afterwards
 a [certificate signing request][csr] for the server and client is generated
 using OpenSSL's req(1) command. These CSRs are then signed by the previously
-created CA using the ca(1) command once more. After moving the created
-certificates and keys into the specified output directory, the temporary
-scratch space is removed, including the CA's private key. This, in essence,
-renders the CA useless, which is the whole point of this very concept.
+created CA using the ca(1) command once more. After some conversions
+(see pkcs12(1)), the certificates and keys are moved into the specified output
+directory. Then the temporary scratch space is removed, including the CA's
+private key. This, in essence, renders the CA useless, which is the point of
+this concept.
 
 ## CONTRIBUTIONS
 
