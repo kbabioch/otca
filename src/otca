@@ -73,31 +73,31 @@ help()
 
     OPTIONS:
 
-      -c, --config=             Location of OpenSSL configuration file
+      -c, --config=         Location of OpenSSL configuration file
 
-          --section=            Section in configuration file to use (otca_ca by default)
-          --ext-ca=             Name of extensions for CA certificate (otca_ext_ca by default)
-          --ext-server=         Name of extensions for server certificate (otca_ext_server by default)
-          --ext-client=         Name of extensions for client certificate (otca_ext_client by default)
+          --section=        Section in configuration file to use (otca_ca by default)
+          --ext-ca=         Name of extensions for CA certificate (otca_ext_ca by default)
+          --ext-server=     Name of extensions for server certificate (otca_ext_server by default)
+          --ext-client=     Name of extensions for client certificate (otca_ext_client by default)
 
-      -b, --bits=               Number of bits of the RSA keys, 2048 by default
-      -y, --years=              Number of years certificates should be valid for, 3 by default
-          --startdate=          Start date of the certificates (notBefore), yesterday by default, format: YYYY-MM-DD
-          --enddate=            End date of the certificates (notAfter), see -y/--years for default, format: YYYY-MM-DD
+      -b, --bits=           Number of bits of the RSA keys, 2048 by default
+      -y, --years=          Number of years certificates should be valid for, 3 by default
+          --startdate=      Start date of the certificates (notBefore), yesterday by default, format: YYYY-MM-DD
+          --enddate=        End date of the certificates (notAfter), see -y/--years for default, format: YYYY-MM-DD
 
-      -p, --pkcs12              Create PKCS12 files instead of PEM keys and certificates
+      -p, --pkcs12          Create PKCS12 files instead of PEM keys and certificates
 
-      -o, --outdir              Name of output directory, "SERVERNAME+CLIENTNAME" by default
-      -f, --force               Force overwrite if output directory already exists
+      -o, --outdir          Name of output directory, "SERVERNAME+CLIENTNAME" by default
+      -f, --force           Force overwrite if output directory already exists
 
-      -v, --verbose             Enable verbose output
-      -d, --debug               Enable debug mode (potentially DANGEROUS, since it will keep temporary keys around)
+      -v, --verbose         Enable verbose output
+      -d, --debug           Enable debug mode (potentially DANGEROUS, since it will keep temporary keys around)
 
-      -h, --help                Show this usage help
-          --version             Show version information
+      -h, --help            Show this usage help
+          --version         Show version information
 
-    SERVERNAME: Name of the server, optional since hostname is used by default
-    CLIENTNAME: Name of the client that the OTCA should be set up for
+    SERVERNAME: Name of the server, optional since hostname(1) is used by default
+    CLIENTNAME: Name of the client that the OTCA should be set up for, mandatory
 
 EOF
 
