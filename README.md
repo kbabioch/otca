@@ -48,12 +48,12 @@ this script and should be placed under `/etc/otca/otca.cnf`.
 ## THEORY OF OPERATION
 
 After some basic option and argument parsing, otca sets up a suitable
-temporary environment for the ca(1) command. It then generates and self-signs
+temporary environment for the `ca(1)` command. It then generates and self-signs
 a certificate for the CA, handing over the appropriate options. Afterwards
 a [certificate signing request][csr] for the server and client is generated
-using OpenSSL's req(1) command. These CSRs are then signed by the previously
-created CA using the ca(1) command once more. After some conversions
-(see pkcs12(1)), the certificates and keys are moved into the specified output
+using OpenSSL's `req(1)` command. These CSRs are then signed by the previously
+created CA using the `ca(1)` command once more. After some conversions (see
+`pkcs12(1)`), the certificates and keys are moved into the specified output
 directory. Then the temporary scratch space is removed, including the CA's
 private key. This, in essence, renders the CA useless, which is the point of
 this concept.
