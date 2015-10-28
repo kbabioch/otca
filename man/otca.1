@@ -8,7 +8,12 @@ otca - sets up a public-key infrastructure built around an One-Time CA
 [
 .I OPTIONS
 ]...
+[
+.I SERVERNAME
+]
 .I CLIENTNAME
+
+.SH CONFIGURATION
 
 .SH DESCRIPTION
 .B otca 
@@ -31,19 +36,51 @@ tries to simplify this.
 
 .SH EXIT STATUS
 
+.SH FILES
+.I /etc/otca/otca.cnf
+.RS
+OpenSSL configuration file that
+.B otca
+uses by default. It describes the way certificates are generated, along with
+the appropriate extensions. Refer to
+.BR config(5)
+for details.
+.RE
+
 .SH NOTES
 Since the private key of the CA is removed, no additional certificates can be
-issued and/or revoked. If these aspects of a PKI are really needed,
+issued or revoked. If these aspects of a PKI are needed,
 .B otca 
-is probably the wrong tool.
+is probably the wrong tool to use.
 
 .SH EXAMPLE
+For the typical use case you only need to run the following command:
+.PP
+.nf
+.RS
+otca foo
+.RE
+.fi
+.PP
+where
+.I foo
+is the name of the client. In case you also want to specify the name of the server (e.g.
+.I bar
+) invoke
+.B otca
+in the following way:
+.PP
+.nf
+.RS
+otca bar foo
+.RE
+.fi
+.PP
 
 .SH SEE ALSO
 .BR openssl (1),
 .BR ca (1),
-.BR dhparam (1),
-.BR openvpn (8).
+.BR req (1)
 
 .SH AUTHOR
 .B otca
