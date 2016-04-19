@@ -9,7 +9,7 @@ consists of:
 
  - certck: A script that checks certificates for their expire date
 
-## otca
+### otca
 
 Generating the appropriate certificates consists of multiple steps and quickly
 becomes cumbersome. [Easy RSA][easy-rsa], which is shipped along with OpenVPN
@@ -39,7 +39,7 @@ In case of a breach, or whenever certificates expire, one simply starts from
 scratch and simply eplaces the old certificates. Given that only two entities
 are involved, this is not too much of a hassle.
 
-## certck
+### certck
 
 This script will iterate over all certificates within a directory and will
 examine its expire date. When a certificate is about to expire, it will output
