@@ -17,7 +17,6 @@
 
 DIRS = \
 	/usr/bin \
-	/etc/otca \
 	/usr/share/man/man1
 
 
@@ -29,7 +28,7 @@ endif
 	$(foreach dir,$(DIRS),install -dm755 $(DESTDIR)$(dir);)
 
 	install -m0775 src/otca $(DESTDIR)/usr/bin
-	install -m0644 etc/otca.cnf $(DESTDIR)/etc/otca
+	install -m0644 etc/otca.cnf $(DESTDIR)/etc
 	install -m0644 man/otca.1 $(DESTDIR)/usr/share/man/man1
 
 .PHONY: install
