@@ -1,0 +1,162 @@
+#! /bin/bash
+#
+# Copyright (c) 2016 Karol Babioch <karol@babioch.de>
+#
+# This file is part of certutils.
+#
+# certutils is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# certutils is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Version string
+VERSION="0.1"
+
+# Various exit codes used throughout the program
+EXIT_INVALID_OPTION=1
+EXIT_OPENSSL_ERROR=2
+
+# Directory to look for certificates
+CERTDIR=""
+
+# Flag for verbose output
+VERBOSE="False"
+
+# Output a prefixed error message and exit with given code
+# $1: Exit code
+# $2: Error message (optional)
+error()
+{
+
+    if [[ ! -z "$2" ]]; then
+
+        echo "ERROR: $2" >&2
+
+    fi
+
+    exit $1
+
+}
+
+# Output usage help
+help()
+{
+
+    cat << EOF
+
+    Usage: $0 [OPTIONS]... CERTDIR
+
+    OPTIONS:
+
+      -v, --verbose         Enable verbose output
+
+      -h, --help            Show this usage help
+          --version         Show version information
+
+    CERTDIR: Directory containing certificates that should be checked, mandatory
+
+EOF
+
+}
+
+# Output version information
+version()
+{
+
+    cat << EOF
+
+    Version: $VERSION
+
+    Copyright (c) 2016 Karol Babioch <karol@babioch.de>
+
+    This program comes with ABSOLUTELY NO WARRANTY; This is free software, and
+    you are welcome to redistribute it under certain conditions;
+
+EOF
+
+}
+
+# Output information configuration to user
+info()
+{
+
+    cat << EOF
+
+    Checking certificates with the following options:
+
+        CERTDIR:    $CERTDIR
+
+        Verbose:    $VERBOSE
+
+EOF
+
+}
+
+# Parse options provided as command line arguments
+for i in "$@"
+do
+
+    case "$i" in
+
+        # Enable verbose mode (short & long)
+        -v|--verbose)
+            VERBOSE="True"
+            shift
+            ;;
+
+        # Usage help
+        -h|--help)
+            help
+            exit
+            ;;
+
+        # Version information
+        --version)
+            version
+            exit
+            ;;
+
+    esac
+
+done
+
+# Check number of arguments
+if [[ "$#" != 1 ]]; then
+
+    # Invalid number of arguments
+    error $EXIT_INVALID_OPTION "Wrong number of arguments!"
+
+fi
+
+# Remaining argument is certificate directory
+CERTDIR="$1"
+
+# Check if given directory is valid
+if [[ ! -d "$CERTDIR" ]]; then
+
+    error $EXIT_INVALID_OPTION "$CERTDIR is not a valid directory"
+
+fi
+
+# Check verbosity flag and attach new stream to stdout or /dev/null
+if [[ "$VERBOSE" == "True" ]]; then
+
+    exec 3>&1
+
+else
+
+    exec 3> /dev/null
+
+fi
+
+# Output information about configuration
+info >&3
+
