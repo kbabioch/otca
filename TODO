@@ -1,4 +1,5 @@
  - Evaluate OpenSSL return codes and exit in case of an error
 
- - Update and implement test suite
+ - Update man page
 
+ - Parameter for common name
