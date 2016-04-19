@@ -4,7 +4,7 @@ certutils are a set of utilities built around [OpenSSL][openssl] helping you to
 setup and maintain a simple [public-key infrastructure][x509]. Currently it
 consists of:
 
- - otca: A script to quickly generate two certificates signed by a single
+ - otca: A script to quickly generate a pair of certificates signed by a single
    certificate authority
 
  - certck: A script that checks certificates for their expire date
