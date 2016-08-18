@@ -20,7 +20,7 @@ ifneq ($(strip $(DESTDIR)),)
 endif
 
 	install -Dm775 bin/otca $(DESTDIR)/usr/bin/otca
-	install -Dm644 etc/otca.cnf $(DESTDIR)/etc/otca.cnf
+	install -Dm644 etc/otca.cnf $(DESTDIR)/etc/otca/otca.cnf
 	install -Dm644 man/otca.1 $(DESTDIR)/usr/share/man/man1/otca.1
 
 .PHONY: install
