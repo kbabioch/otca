@@ -3,3 +3,6 @@
  - Update man page
 
  - Parameter for common name
+
+ - Dependency check in Makefile and/or use autotools
+
