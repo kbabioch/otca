@@ -13,21 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-DIRS = \
-	/usr/bin \
-	/usr/share/man/man1
-
-
 install:
 
 ifneq ($(strip $(DESTDIR)),)
 	mkdir -p $(DESTDIR)
 endif
-	$(foreach dir,$(DIRS),install -dm755 $(DESTDIR)$(dir);)
 
-	install -m0775 bin/otca $(DESTDIR)/usr/bin
-	install -m0644 etc/otca.cnf $(DESTDIR)/etc
-	install -m0644 man/otca.1 $(DESTDIR)/usr/share/man/man1
+	install -Dm775 bin/otca $(DESTDIR)/usr/bin/otca
+	install -Dm644 etc/otca.cnf $(DESTDIR)/etc/otca.cnf
+	install -Dm644 man/otca.1 $(DESTDIR)/usr/share/man/man1/otca.1
 
 .PHONY: install
 
