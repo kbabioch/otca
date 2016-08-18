@@ -6,3 +6,5 @@
 
  - Dependency check in Makefile and/or use autotools
 
+ - Change version string in otca script automatically (i.e. build script?)
+
