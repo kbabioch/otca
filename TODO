@@ -8,3 +8,5 @@
 
  - Change version string in otca script automatically (i.e. build script?)
 
+ - Makefile target for distribution, e.g. make dist ... changelog, etc.
+
