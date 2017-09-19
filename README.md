@@ -1,11 +1,12 @@
 # otca
 
 otca is a script supporting you in quickly setting up a simple [public-key
-infrastructure][x509]. This, for instance, can be used for point-to-point
-[OpenVPN][openvpn] installations. Typically there is only a single server
-and client in such setups. While a static key setup might be easier to
-configure, a certificate based approach provides additional security because
-of the [SSL/TLS handshake][tls] involved (ephemeral keys, forward secrecy).
+infrastructure][x509] with only two entities. This, for instance, can be used
+for point-to-point [OpenVPN][openvpn] installations. Typically there is only
+a single server and client in such setups. While a static key setup might
+be easier to configure, a certificate based approach provides additional
+security because of the [SSL/TLS handshake][tls] involved (ephemeral keys,
+forward secrecy, etc.).
 
 Generating the appropriate certificates consists of multiple steps and quickly
 becomes cumbersome. [Easy RSA][easy-rsa], which is shipped along with OpenVPN
@@ -26,14 +27,14 @@ the CA is used, i.e. only once. The appropriate key is permanently removed and
 no further actions can be taken by this CA.
 
 In case of a breach, or whenever certificates expire, one simply starts from
-scratch and simply eplaces the old certificates. Given that only two entities
+scratch and simply replaces the old certificates. Given that only two entities
 are involved, this is not too much of a hassle.
 
 ## PREREQUISITES
 
-otca is a sophisticated Bash script built around [openssl][openssl]. There are
-no particular restrictions used versions. It has been developed and tested with
-OpenSSL 1.0.2 in mind, but other versions should work fine, too.
+otca is a somehwat sophisticated Bash script built around [openssl][openssl].
+It has been developed and tested with OpenSSL 1.0.2 in mind, but other versions
+should work fine, too.
 
 ## USAGE
 
@@ -52,11 +53,10 @@ temporary environment for the `ca(1)` command. It then generates and self-signs
 a certificate for the CA, handing over the appropriate options. Afterwards
 a [certificate signing request][csr] for the server and client is generated
 using OpenSSL's `req(1)` command. These CSRs are then signed by the previously
-created CA using the `ca(1)` command once more. After some conversions (see
+created CA using the `ca(1)` command again. After some conversions (see
 `pkcs12(1)`), the certificates and keys are moved into the specified output
 directory. Then the temporary scratch space is removed, including the CA's
-private key. This, in essence, renders the CA useless, which is the point of
-this concept.
+private key.
 
 ## CONTRIBUTIONS
 
